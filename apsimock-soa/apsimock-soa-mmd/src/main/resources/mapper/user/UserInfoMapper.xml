@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.user.UserInfoMapper">
+
+    <resultMap id="userInfoResultMap" type="com.roli.apsimock.model.user.UserInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="userAccount" column="USER_ACCOUNT" jdbcType="VARCHAR"/>
+        <result property="userName" column="USER_NAME" jdbcType="VARCHAR"/>
+        <result property="passWord" column="PASSWORD" jdbcType="VARCHAR"/>
+        <result property="isActive" column="ISACTIVE" jdbcType="TINYINT"/>
+        <result property="department1" column="DEPARTMENT1" jdbcType="VARCHAR"/>
+        <result property="department2" column="DEPARTMENT2" jdbcType="VARCHAR"/>
+        <result property="department3" column="DEPARTMENT3" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+    </resultMap>
+
+    <!--公共查询字段-->
+    <sql id="base_column_list">
+        ID,USER_ACCOUNT,USER_NAME,ISACTIVE,PASSWORD,CREATE_TIME,UPDATE_TIME
+    </sql>
+
+    <insert id="insertUserInfo" parameterType="com.roli.apsimock.model.user.UserInfo" useGeneratedKeys="true">
+        insert into aps_userinfo (
+          USER_ACCOUNT,USER_NAME,PASSWORD,DEPARTMENT1,DEPARTMENT2,DEPARTMENT3,CREATE_TIME
+        )
+        VALUES(
+        #{userAccount},#{userName},#{passWord},#{department1},#{department2},#{department3},#{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <select id="queryAllUser" resultMap="userInfoResultMap">
+        select
+        au.`ID`
+        ,au.USER_ACCOUNT
+        ,au.USER_NAME
+        from aps_userinfo as au left join aps_user_project_relation as ap
+        on au.`id` = ap.user_id and ap.project_id = #{projectid} where
+         <choose>
+             <when test="isInv==1">
+                 ap.user_id is not null
+             </when>
+             <otherwise>
+                 ap.user_id is null
+             </otherwise>
+         </choose>
+
+        <if test="userAccount != null || userName!=null">
+            and (au.user_account = #{userAccount} or au.user_name = #{userName})
+        </if>
+    </select>
+
+    <select id="queryUserInfoByAccount" resultMap="userInfoResultMap">
+        select
+        <include refid="base_column_list"/>
+        from  aps_userinfo where USER_ACCOUNT = #{userAccount}
+    </select>
+
+    <select id="queryUserIdByAccount" resultType="int">
+        select ID from aps_userinfo where USER_ACCOUNT = #{userAccount}
+    </select>
+
+    <select id="queryUserInfoByAccountAndName" parameterType="com.roli.apsimock.model.user.UserFieldForget" resultMap="userInfoResultMap">
+        select <include refid="base_column_list"/>
+        from aps_userinfo where USER_ACCOUNT = #{userAccount} and USER_NAME = #{userName}
+    </select>
+
+    <update id="updateAccountPass">
+        update aps_userinfo set password = #{newPass} where user_account = #{userAccount}
+    </update>
+
+    <select id="queryUserNameByUserid" resultType="String">
+        select user_name from aps_userinfo where `id` = #{userId}
+    </select>
+</mapper>

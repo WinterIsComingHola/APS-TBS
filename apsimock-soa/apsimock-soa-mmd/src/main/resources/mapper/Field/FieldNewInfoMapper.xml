@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.api.FieldNewInfoMapper">
+    <resultMap id="fieldNewInfoMap" type="com.roli.apsimock.model.api.FieldNew">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="dataType" column="DATA_TYPE" jdbcType="TINYINT"/>
+        <result property="isRoot" column="IS_ROOT" jdbcType="TINYINT"/>
+        <result property="fatherId" column="FATHER_ID" jdbcType="BIGINT"/>
+        <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+        <result property="rowWidth" column="ROW_WIDTH" jdbcType="BIGINT"/>
+
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        
+        <collection property="fieldDetailList" javaType="ArrayList" ofType="com.roli.apsimock.model.api.FieldDetail">
+            <id property="id" column="FIELDID" jdbcType="BIGINT"/>
+            <result property="fieldType" column="FIELD_TYPE" jdbcType="TINYINT"/>
+            <result property="fieldValue" column="FIELD_VALUE" jdbcType="VARCHAR"/>
+            <result property="rowdataId" column="ROWDATA_ID" jdbcType="BIGINT"/>
+        </collection>
+
+    </resultMap>
+
+    <insert id="insertRootField" useGeneratedKeys="true">
+        insert into aps_field (data_type,is_root,api_id,row_width,create_time)
+        values (
+        5,1,(select `ID` from aps_api where `NAME` = #{apiName}),100,now()
+        )
+    </insert>
+
+    <select id="queryFieldRowDataMaxId" resultType="int">
+        select max(id) from aps_field
+    </select>
+
+    <select id="queryAllChildNodeId" resultType="int">
+        select id from aps_field where father_id = #{currentId}
+    </select>
+
+    <select id="queryRootNodeIdByApiId" resultType="int">
+        select id from aps_field where api_id = #{apiId} and is_root = 1
+    </select>
+
+    <select id="queryRootNodeTypeByApiId" resultType="int">
+        select data_type from aps_field where api_id = #{apiId} and is_root = 1
+    </select>
+
+    <insert id="insertRowData" parameterType="com.roli.apsimock.model.api.FieldNew" useGeneratedKeys="true">
+
+        insert into aps_field (`id`,data_type,is_root,father_id,api_id,row_width,create_time)
+        values (#{id},5,0,#{fatherId},#{apiId},#{rowWidth},now())
+    </insert>
+
+    <insert id="insertRowDataDetail" useGeneratedKeys="true">
+        insert into aps_fielddetail(field_type,rowdata_id,create_time)
+        values
+        <foreach collection="fieldTypeList" item="item" separator=",">
+            (#{item},#{fieldRowId},now())
+        </foreach>
+    </insert>
+
+    <select id="queryFatherNodeId" resultType="int">
+
+        select father_id from aps_field where `id` = #{currentId}
+
+    </select>
+
+    <select id="queryAllFieldInfoByApiId" resultMap="fieldNewInfoMap">
+        select
+        af.ID,
+        af.data_type,
+        af.is_root,
+        af.father_id,
+        af.row_width,
+        afd.ID FIELDID,
+        afd.field_type,
+        afd.field_value
+        from aps_field af ,aps_fielddetail afd
+        where af.id = afd.rowdata_id and af.api_id = #{apiId}
+    </select>
+
+    <update id="updateFieldValue">
+        update aps_fielddetail set field_value = #{newValue}
+        where rowdata_id = #{rowDataId} and field_type = #{fieldType}
+    </update>
+
+    <update id="updateFileRowDataType">
+        update aps_field set data_type = #{rowDataType}
+        where id = #{rowDataId}
+    </update>
+
+    <delete id="deleteFieldRowData">
+        delete from aps_field where id in (
+        <foreach collection="rowIds" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteFieldValueData">
+        delete from aps_fielddetail where rowdata_id in (
+        <foreach collection="rowIds" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+    </delete>
+
+    <select id="queryAllFieldInfoByUrl" resultMap="fieldNewInfoMap">
+        select
+        af.ID,
+        af.data_type,
+        af.is_root,
+        af.father_id,
+        af.row_width,
+        afd.ID FIELDID,
+        afd.field_type,
+        afd.field_value
+        from aps_field af ,aps_fielddetail afd,aps_api ap
+        where ap.id = af.api_id and af.id = afd.rowdata_id and ap.url_path = #{url}
+    </select>
+
+    <select id="queryRootInfoByApiUrl" resultType="int">
+        select
+        <choose>
+            <when test="isRootId == 1">
+                af.id
+            </when>
+            <otherwise>
+                af.data_type
+            </otherwise>
+        </choose>
+        from aps_api ap ,aps_field af
+        where ap.id = af.api_id and ap.url_path = #{url} and af.is_root = 1
+    </select>
+
+</mapper>

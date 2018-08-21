@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="         
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd         
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd         
+          http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd         
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd         
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+	default-autowire="byName">
+
+	<!-- <bean id="propertyConfigurer" class="com.ai.common.config.AccGlobalPropertyConfigurer">  
+		<property name="configfileList"> 
+			<list> 
+				<value>jdbc_log.properties</value>
+				<value>jdbc_pub.properties</value> 
+				<value>jdbc_usr.properties</value>
+				<value>redis.properties</value> 
+				<value>spring-soa-restful-oauth.properties</value>
+				<value>webConfig.properties</value>
+			</list> 
+		</property> 
+		<property name="poolId">
+         	<value>edu-soa-server</value>
+	     </property>
+	</bean> -->
+	
+	<bean id="propertyConfigurer" class="com.roli.common.spring.DBPropertyPlaceholderConfigurer">
+		<property name="appName"  value="${active.appname}"/>
+		<property name="profileName"  value="${active.profilename}"/>
+		<property name="driverClass"  value="${active.driverClass}"/>
+		<property name="name"  value="${active.name}"/>
+		<property name="pwd"  value="${active.pwd}"/>
+		<property name="url"  value="${active.url}"/>
+		<!--
+		<property name="createPropertyFile"  value="${active.createPropertyFile}"/>
+		-->
+		<property name="createPropertyFile"  value="false"/>
+		<property name="autoReload" value="${active.autoReload}" />
+		<!--locations是DBPlaceholderConfigurer的父类PropertyPlaceholderConfigurer提供的属性
+		主要用于加载工程中的properties文件
+		-->
+		<property name="locations">
+			<list>
+				<value>classpath:config/${active.profilename}/*.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 事务配置 -->
+	<import resource="classpath:datasource/transaction.xml"/>
+	
+   	<!-- 数据源 -->
+   	<import resource="classpath:datasource/datasource_apsmock.xml"/>
+   	
+   	
+   	<!-- 其他 -->
+	<!--<import resource="classpath:spring/spring_redis.xml"/>-->
+	<!--<import resource="classpath:spring/spring_sso_servlet.xml"/>-->
+	<import resource="classpath:spring/springMVC.xml"/>
+	
+	<!-- 引入restful -->
+	<import resource="classpath:soa/spring/spring-soa-restful.xml" />
+	
+	<!-- 线程池配置 -->
+	<import resource="classpath:spring/spring_thread.xml"/>
+	
+	<bean id="SpringContextUtil" class="com.roli.apsimock.common.utils.SpringContextCustom"/>
+</beans>  

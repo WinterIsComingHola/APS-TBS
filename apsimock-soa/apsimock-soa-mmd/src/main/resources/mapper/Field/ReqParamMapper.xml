@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.api.ReqParamMapper">
+
+    <resultMap id="reqParamRowMap" type="com.roli.apsimock.model.api.ReqRowData">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="bodyType" column="BODY_TYPE" jdbcType="TINYINT"/>
+        <result property="paramType" column="PARAM_TYPE" jdbcType="TINYINT"/>
+        <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <collection property="paramDetails" javaType="ArrayList" ofType="com.roli.apsimock.model.api.ParamDetail">
+            <id property="id" column="FIELDID" jdbcType="BIGINT"/>
+            <result property="fieldType" column="FIELD_TYPE" jdbcType="TINYINT"/>
+            <result property="fieldValue" column="FIELD_VALUE" jdbcType="VARCHAR"/>
+            <result property="rowdataId" column="ROWDATA_ID" jdbcType="BIGINT"/>
+        </collection>
+    </resultMap>
+
+    <sql id="pubParamCols">
+        `ID`,BODY_TYPE,PARAM_TYPE,PARAM_NAME,PARAM_VALUE,FIELD_DESC,RAW_BODY,API_ID,IS_ACTIVE,CREATE_TIME
+    </sql>
+
+
+    <select id="queryReqParamField" resultMap="reqParamRowMap">
+        select
+        arow.id,
+        aparam.ID FIELDID,
+        aparam.FIELD_TYPE,
+        aparam.FIELD_VALUE
+        from  aps_reqrowdata as arow  ,aps_paramdetail as aparam
+        where arow.id = aparam.rowdata_id and arow.id = #{paramRowid}
+    </select>
+
+    <update id="updateReqParamField">
+        update aps_paramdetail set field_value = #{fieldValue} where
+        rowdata_id = #{paramRowid} and field_type = #{fieldType}
+    </update>
+
+    <select id="queryReqMaxRowId" resultType="int">
+        select max(id) from aps_reqrowdata
+    </select>
+
+    <insert id="insertReqRow" parameterType="com.roli.apsimock.model.api.ReqRowData" useGeneratedKeys="false">
+        insert  into aps_reqrowdata (`id`,`body_type`,`param_type`,`api_id` ,`create_time`)
+        VALUES (
+        #{id},#{bodyType},#{paramType},#{apiId},#{createTime}
+        )
+    </insert>
+    <insert id="insertParamField" useGeneratedKeys="true">
+
+        insert into aps_paramdetail (`field_type`,`rowdata_id`,`create_time`)
+        VALUES 
+        <foreach collection="fieldTypeList" item="item" separator=",">
+            (#{item},#{paramDetail.rowdataId},#{paramDetail.createTime})
+        </foreach>
+
+    </insert>
+    
+    <delete id="deleteReqRow">
+        delete from aps_reqrowdata where `id` = #{rowId}
+    </delete>
+
+    <delete id="deleteParamField">
+        delete from aps_paramdetail where rowdata_id = #{rowId}
+    </delete>
+
+    <select id="queryBodyTypeByApiid" resultType="int">
+        select body_type from aps_reqrowdata where api_id = #{apiid} and param_type = 1 limit 1
+    </select>
+
+</mapper>

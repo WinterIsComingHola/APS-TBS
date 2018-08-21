@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.api.FieldInfoMapper">
+    <resultMap id="fieldInfoMap" type="com.roli.apsimock.model.api.FieldInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="httpType" column="HTTP_TYPE" jdbcType="TINYINT"/>
+        <result property="fieldName" column="FIELD_NAME" jdbcType="VARCHAR"/>
+        <result property="fieldType" column="FIELD_TYPE" jdbcType="TINYINT"/>
+        <result property="fieldValue" column="FIELD_VALUE" jdbcType="VARCHAR"/>
+        <result property="fieldDesc" column="FIELD_DESC" jdbcType="VARCHAR"/>
+        <result property="isRoot" column="IS_ROOT" jdbcType="TINYINT"/>
+        <result property="rootType" column="ROOT_TYPE" jdbcType="TINYINT"/>
+        <result property="fatherId" column="FATHER_ID" jdbcType="BIGINT"/>
+        <result property="fatherType" column="FATHER_TYPE" jdbcType="TINYINT"/>
+        <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+        <result property="isActive" column="IS_ACTIVE" jdbcType="TINYINT"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="addField" parameterType="com.roli.apsimock.model.api.FieldInfoOV" useGeneratedKeys="true">
+
+        insert into aps_fieldinfo (HTTP_TYPE,FIELD_NAME,FIELD_TYPE,FIELD_VALUE,FIELD_DESC,IS_ROOT,ROOT_TYPE,FATHER_ID,FATHER_TYPE,API_ID,CREATE_TIME)
+        VALUES (
+        #{httpType},#{fieldName},#{fieldType},
+        <choose>
+            <when test="fieldType == 5 or fieldType == 6">
+                NULL,
+            </when>
+            <otherwise>
+                #{fieldValue},
+            </otherwise>
+        </choose>
+        #{fieldDesc},#{isRoot},
+        <choose>
+            <when test="isRoot != 1">
+                NULL,
+            </when>
+            <otherwise>
+                #{rootType},
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="isRoot == 1">
+                NULL,
+            </when>
+            <otherwise>
+                #{fatherId},
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="isRoot == 1">
+                NULL,
+            </when>
+            <otherwise>
+                #{fatherType},
+            </otherwise>
+        </choose>
+        (select `ID` from aps_api where `NAME` = #{apiName}),
+        #{createTime,jdbcType=TIMESTAMP}
+
+        )
+
+    </insert>
+
+    <sql id="pubFeildCols">
+        `ID`,HTTP_TYPE,FIELD_NAME,FIELD_TYPE,FIELD_VALUE,FIELD_DESC,IS_ROOT,ROOT_TYPE,FATHER_ID,FATHER_TYPE,API_ID
+    </sql>
+
+    <select id="queryFieldByName" resultMap="fieldInfoMap">
+        select <include refid="pubFeildCols"/> from aps_fieldinfo where
+        <choose>
+            <when test="fieldName==null">
+                API_ID = (select `ID` from aps_api where `NAME` = #{apiName})
+            </when>
+            <otherwise>
+                FIELD_NAME = #{fieldName} and API_ID = (select `ID` from aps_api where `NAME` = #{apiName})
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="queryFatherFieldByFid" resultMap="fieldInfoMap">
+        select <include refid="pubFeildCols"/> from aps_fieldinfo where
+        `ID` = #{fatherId}
+    </select>
+
+    <select id="queryAllFieldByUrlPath" resultMap="fieldInfoMap">
+
+        select
+        af.*
+        from aps_api aa ,aps_fieldinfo af
+        where aa.id = af.api_id and aa.url_path = #{urlPath} and af.http_type = 2 order by af.id asc
+    </select>
+
+</mapper>

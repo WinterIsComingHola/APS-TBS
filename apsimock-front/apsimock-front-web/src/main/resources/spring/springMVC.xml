@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="  
+		http://www.springframework.org/schema/beans  
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+		http://www.springframework.org/schema/mvc  
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd  
+		http://www.springframework.org/schema/context  
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+    <!--<mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean id="messageConverters" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>application/javascript;charset=UTF-8</value>
+                        <value>text/json;charset=UTF-8</value>
+                        <value>text/javascript;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>-->
+
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean id="messageConverters" class="com.roli.common.utils.json.CallbackMappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>application/javascript;charset=UTF-8</value>
+                        <value>text/json;charset=UTF-8</value>
+                        <value>text/javascript;charset=UTF-8</value>
+                    </list>
+                </property>
+                <property name="callBackFunctionName" value="callback"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+	
+	<!-- 本处（只包含controller）使用DispatcherServlet管理容器-->
+	<context:component-scan base-package="com.roli.**" />
+
+	<bean id="freemarkerConfig"
+	     class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">  
+	    <property name="templateLoaderPath" value="/WEB-INF/view/" />  
+	    <property name="freemarkerVariables"> 
+	        <map>
+                <entry key="miscDomain" value="${miscDomain}" />
+                <entry key="mainDomain" value="${mainDomain}" />
+                <!--<entry key="ecardDomain" value="${ecardDomain}" />
+                <entry key="appDomain" value="${appDomain}" />
+                <entry key="payDomain" value="${payDomain}" />
+                <entry key="staticDomain" value="${staticDomain}" />
+                <entry key="passportDomain" value="${passportDomain}"/>
+                <entry key="imageDomain" value="${imageDomain}" />
+                <entry key="imageAppDomain" value="${imageAppDomain}" />
+                <entry key="v" value="${static_version}" />-->
+	        </map> 
+	    </property>  
+	    <property name="freemarkerSettings">  
+	        <props>  
+	        	<prop key="locale">zh_CN</prop>
+	            <prop key="template_update_delay">0</prop>  
+	            <prop key="default_encoding">UTF-8</prop>  
+	            <prop key="number_format">0.##########</prop>  
+	            <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>  
+	            <prop key="classic_compatible">true</prop>  
+	            <prop key="template_exception_handler">ignore</prop>
+                <!--<prop key="auto_import">common/macro.ftl as c</prop>-->
+            </props>
+	    </property>  
+	</bean>
+	 <!-- view -->
+	<bean id="viewResolver"
+        class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+        <property name="cache" value="false" /><!--生产环境需要改成true，提升性能-->
+        <property name="prefix" value="" />
+        <property name="suffix" value=".ftl" />
+        <property name="contentType" value="text/html;charset=UTF-8"></property>
+        <property name="requestContextAttribute" value="request" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="exposeSessionAttributes" value="true" />
+    </bean>
+    <!-- 全局异常处理 -->
+    <!-- <bean id="handlerExceptionResolver" class="com.ai.interceptor.AnnotationHandlerMethodExceptionResolver">
+	    <property name="defaultErrorView" value="error/errorpage"/>
+	    <property name="messageConverters" ref="messageConverters"/> 
+	</bean>
+	-->
+</beans>

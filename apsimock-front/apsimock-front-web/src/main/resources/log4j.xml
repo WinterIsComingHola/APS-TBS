@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//LOGGER" "log4j.dtd">
+
+<log4j:configuration>
+
+	<!-- Appenders -->
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-d{HH:mm:ss}] [aps-front] %-5p: %c - %m%n"/>
+		</layout>
+	</appender>
+
+	<!-- 3rdparty Loggers -->
+	<logger name="org.springframework.core">
+		<level value="error"/>
+	</logger>
+
+	<logger name="org.springframework.beans">
+		<level value="error"/>
+	</logger>
+
+	<logger name="org.springframework.context">
+		<level value="error"/>
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="error"/>
+	</logger>
+
+	<logger name="com.roli">
+		<level value="debug"/>
+	</logger>
+
+
+	<!-- Root Logger -->
+	<root>
+		<priority value="debug"/>
+		<appender-ref ref="console"/>
+	</root>
+
+</log4j:configuration>

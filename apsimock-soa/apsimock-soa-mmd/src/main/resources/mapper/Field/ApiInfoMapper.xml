@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.api.ApiInfoMapper">
+
+    <resultMap id="apiInfoMap" type="com.roli.apsimock.model.api.ApiInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="apiName" column="NAME" jdbcType="VARCHAR"/>
+        <result property="urlPath" column="URL_PATH" jdbcType="VARCHAR"/>
+        <result property="httpMethod" column="HTTP_METHOD" jdbcType="TINYINT"/>
+        <result property="projectId" column="PROJECT_ID" jdbcType="BIGINT"/>
+        <result property="createUserId" column="CREATE_USERID" jdbcType="BIGINT"/>
+        <result property="isActive" column="ISACTIVE" jdbcType="TINYINT"/>
+        <result property="desc" column="DESC" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <collection property="fieldInfos" javaType="ArrayList" ofType="com.roli.apsimock.model.api.FieldInfo">
+            <id property="id" column="FIELDID" jdbcType="BIGINT"/>
+            <result property="httpType" column="HTTP_TYPE" jdbcType="TINYINT"/>
+            <result property="fieldName" column="FIELD_NAME" jdbcType="VARCHAR"/>
+            <result property="fieldType" column="FIELD_TYPE" jdbcType="TINYINT"/>
+            <result property="fieldValue" column="FIELD_VALUE" jdbcType="VARCHAR"/>
+            <result property="fieldDesc" column="FIELD_DESC" jdbcType="VARCHAR"/>
+            <result property="isRoot" column="IS_ROOT" jdbcType="TINYINT"/>
+            <result property="rootType" column="ROOT_TYPE" jdbcType="TINYINT"/>
+            <result property="fatherId" column="FATHER_ID" jdbcType="BIGINT"/>
+            <result property="fatherType" column="FATHER_TYPE" jdbcType="TINYINT"/>
+            <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+            <result property="isActive" column="IS_ACTIVE" jdbcType="TINYINT"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="apiInfoMapWithUser" type="com.roli.apsimock.model.api.ApiInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="apiName" column="NAME" jdbcType="VARCHAR"/>
+        <result property="urlPath" column="URL_PATH" jdbcType="VARCHAR"/>
+        <result property="httpMethod" column="HTTP_METHOD" jdbcType="TINYINT"/>
+        <result property="projectId" column="PROJECT_ID" jdbcType="BIGINT"/>
+        <result property="createUserId" column="CREATE_USERID" jdbcType="BIGINT"/>
+        <result property="isActive" column="ISACTIVE" jdbcType="TINYINT"/>
+        <result property="desc" column="DESC" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <association property="userInfo" javaType="com.roli.apsimock.model.user.UserInfo">
+            <id property="id" column="USERID" jdbcType="BIGINT"/>
+            <result property="userName" column="USER_NAME" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="apiInfoWithReqParam" type="com.roli.apsimock.model.api.ApiInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="apiName" column="NAME" jdbcType="VARCHAR"/>
+        <result property="urlPath" column="URL_PATH" jdbcType="VARCHAR"/>
+        <result property="httpMethod" column="HTTP_METHOD" jdbcType="TINYINT"/>
+        <result property="projectId" column="PROJECT_ID" jdbcType="BIGINT"/>
+        <result property="createUserId" column="CREATE_USERID" jdbcType="BIGINT"/>
+        <result property="isActive" column="ISACTIVE" jdbcType="TINYINT"/>
+        <result property="desc" column="DESC" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <collection property="reqRowDatas" javaType="ArrayList" ofType="com.roli.apsimock.model.api.ReqRowData">
+            <id property="id" column="ROWID" jdbcType="BIGINT"/>
+            <result property="bodyType" column="BODY_TYPE" jdbcType="TINYINT"/>
+            <result property="paramType" column="PARAM_TYPE" jdbcType="TINYINT"/>
+            <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+        </collection>
+    </resultMap>
+
+
+    <sql id="pubApiCols">
+        ID,`NAME`,URL_PATH,HTTP_METHOD,PROJECT_ID,CREATE_USERID,ISACTIVE,`DESC`,CREATE_TIME,UPDATE_TIME
+    </sql>
+
+    <insert id="addApi" parameterType="com.roli.apsimock.model.api.ApiInfoOV" useGeneratedKeys="true">
+
+        insert into aps_api
+        (
+        `NAME`,URL_PATH,HTTP_METHOD,PROJECT_ID,CREATE_USERID,ISACTIVE,`DESC`,CREATE_TIME
+        )
+        VALUES
+        (
+        #{apiName},#{urlPath},#{httpMethod},#{projectId},
+        (select `id` from aps_userinfo where user_account = #{userAccount}),
+        1,#{desc},#{createTime,jdbcType=TIMESTAMP}
+        )
+
+    </insert>
+
+    <select id="queryApiInfoByName" resultMap="apiInfoMap">
+        select
+        <include refid="pubApiCols"/>
+        from aps_api where `NAME` = #{apiName}
+    </select>
+    <select id="queryApiInfoByUrlPath" resultMap="apiInfoMap">
+        select
+        <include refid="pubApiCols"/>
+        from aps_api where `URL_PATH` = #{urlPath}
+    </select>
+
+    <update id="deleteApiInfoByName">
+        update aps_api set ISACTIVE = 0 where `NAME` = #{apiName}
+    </update>
+
+    <select id="queryApiInfoByProjectId" resultMap="apiInfoMap">
+        select
+        <include refid="pubApiCols"/>
+        from aps_api where `PROJECT_ID` = #{projectid} and ISACTIVE = 1
+    </select>
+
+    <select id="queryApiInfoByApiId" resultMap="apiInfoMapWithUser">
+        select
+        aa.NAME,
+        aa.URL_PATH,
+        aa.HTTP_METHOD,
+        aa.PROJECT_ID,
+        aa.ISACTIVE,
+        aa.CREATE_TIME,
+        au.USER_NAME
+        from aps_api aa,aps_userinfo au
+         where aa.CREATE_USERID = au.`ID` and
+          aa.`ID` = #{apiid}
+    </select>
+
+    <select id="queryReqParamsByApiId" resultMap="apiInfoWithReqParam">
+
+        select
+        api.id,
+        arow.ID ROWID,
+        arow.BODY_TYPE,
+        arow.PARAM_TYPE
+         from  aps_api as api,aps_reqrowdata as arow
+        where api.id = arow.api_id  and api.id = #{apiid}
+
+    </select>
+
+    <update id="updateApiInfo">
+        update aps_api
+        <set>
+            <if test="tag==1">
+                `name` = #{field},
+            </if>
+            <if test="tag==2">
+                url_path = #{field},
+            </if>
+            <if test="tag==3">
+                http_method = #{field},
+            </if>
+            <if test="tag==4">
+                isactive = #{field},
+            </if>
+        </set>
+        where id = #{apiid}
+    </update>
+
+    <select id="queryAppointFieldByApiId" resultType="java.lang.String">
+        select
+        <if test="tag==1">
+            `name`
+        </if>
+        <if test="tag==2">
+            url_path
+        </if>
+        from aps_api where id != #{apiid}
+    </select>
+
+
+</mapper>

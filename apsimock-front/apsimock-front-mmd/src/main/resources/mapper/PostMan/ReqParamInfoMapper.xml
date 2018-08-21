@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.postman.ReqParamMapper">
+
+    <resultMap id="rowDataMap" type="com.roli.apsimock.model.api.ReqRowData">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="bodyType" column="BODY_TYPE" jdbcType="TINYINT"/>
+        <result property="paramType" column="PARAM_TYPE" jdbcType="TINYINT"/>
+        <result property="apiId" column="API_ID" jdbcType="BIGINT"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <collection property="paramDetails" javaType="ArrayList" ofType="com.roli.apsimock.model.api.ParamDetail">
+            <id property="id" column="FIELDID" jdbcType="BIGINT"/>
+            <result property="fieldType" column="FIELD_TYPE" jdbcType="TINYINT"/>
+            <result property="fieldValue" column="FIELD_VALUE" jdbcType="VARCHAR"/>
+            <result property="rowdataId" column="ROWDATA_ID" jdbcType="BIGINT"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryRowFieldDataByApiId" resultMap="rowDataMap">
+        select
+        arow.id,
+        arow.body_type,
+        arow.param_type,
+        aparam.ID FIELDID,
+        aparam.FIELD_TYPE,
+        aparam.FIELD_VALUE
+        from  aps_reqrowdata as arow  ,aps_paramdetail as aparam
+        where arow.id = aparam.rowdata_id and arow.api_id = #{apiId}
+    </select>
+
+</mapper>

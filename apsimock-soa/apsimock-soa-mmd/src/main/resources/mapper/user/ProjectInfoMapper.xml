@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roli.apsimock.dao.project.ProjectInfoMapper">
+
+    <resultMap id="projectInfoMap" type="com.roli.apsimock.model.project.ProjectInfo">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="projectName" column="NAME" jdbcType="VARCHAR"/>
+        <result property="createUserId" column="CREATE_USERID" jdbcType="BIGINT"/>
+        <result property="privacy" column="PRIVACY" jdbcType="TINYINT"/>
+        <result property="department" column="DEPARTMENT" jdbcType="VARCHAR"/>
+        <result property="tag" column="TAG" jdbcType="VARCHAR"/>
+        <result property="desc" column="DESC" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <!--USERINFO对象的id不能和projectinfo写的一样，否则只能查询出一条数据
+        此处的column需要改为其他值
+        -->
+        <collection property="userInfoList" javaType="ArrayList" ofType="com.roli.apsimock.model.user.UserInfo">
+            <id property="id" column="USERID" jdbcType="BIGINT"/>
+            <result property="userAccount" column="USER_ACCOUNT" jdbcType="VARCHAR"/>
+            <result property="userName" column="USER_NAME" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="projectInfoOOVMap" type="com.roli.apsimock.model.project.ProjectInfoOOV">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="projectName" column="NAME" jdbcType="VARCHAR"/>
+        <result property="createUserId" column="CREATE_USERID" jdbcType="BIGINT"/>
+        <result property="privacy" column="PRIVACY" jdbcType="TINYINT"/>
+        <result property="department" column="DEPARTMENT" jdbcType="VARCHAR"/>
+        <result property="tag" column="TAG" jdbcType="VARCHAR"/>
+        <result property="desc" column="DESC" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+
+        <association property="userInfo" javaType="com.roli.apsimock.model.user.UserInfo">
+            <id property="id" column="USERID" jdbcType="BIGINT"/>
+            <result property="userName" column="USER_NAME" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+
+    <resultMap id="ProUserRel" type="com.roli.apsimock.model.project.ProUserRel">
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="projectId" column="project_id" jdbcType="BIGINT"/>
+        <result property="userRole" column="user_role" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="public_col_list">
+        `ID`,`NAME`,CREATE_USERID,PRIVACY,DEPARTMENT,TAG,`DESC`,CREATE_TIME,UPDATE_TIME
+    </sql>
+
+    <insert id="addProject"  parameterType="com.roli.apsimock.model.project.ProjectInfoOV" useGeneratedKeys="true">
+        insert into aps_projectinfo (`NAME`,CREATE_USERID,PRIVACY,DEPARTMENT,TAG,`DESC`,CREATE_TIME)
+        VALUES (
+        #{projectName},
+        (
+        select id from aps_userinfo where user_account = #{userAccount}
+        ),
+        #{privacy},#{department},#{tag},#{desc},#{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <insert id="addProjectAndUserRelation" parameterType="com.roli.apsimock.model.project.ProjectInfoOV">
+        insert into aps_user_project_relation (USER_ID,PROJECT_ID,USER_ROLE)
+        VALUES (
+        (select id from aps_userinfo where user_account = #{userAccount})
+
+        <choose>
+            <when test="projectName==null">
+                ,#{id}
+            </when>
+            <otherwise>
+                ,(select id from aps_projectinfo where name = #{projectName})
+            </otherwise>
+        </choose>
+
+        <choose>
+            <when test="isMaster == 1">
+                ,1
+            </when>
+            <otherwise>
+                ,0
+            </otherwise>
+        </choose>
+        )
+
+    </insert>
+    
+    <select id="queryRelation" resultMap="ProUserRel">
+        select user_id,project_id,user_role from aps_user_project_relation
+        where user_id = (select id from aps_userinfo where user_account = #{userAccount}) and project_id = #{projectId}
+    </select>
+
+    <insert id="makeProjectAndUserRelation" parameterType="com.roli.apsimock.model.project.ProjectInfo">
+        <foreach collection="userInfoList" item="user" >
+            insert into aps_user_project_relation (USER_ID,PROJECT_ID,USER_ROLE)
+            VALUES(
+            #{user.id},
+            (select id from aps_projectinfo where `name` = #{projectName}),
+            0);
+        </foreach>
+    </insert>
+
+    <select id="queryProjectByName" resultMap="projectInfoMap">
+        select <include refid="public_col_list"/>
+        from aps_projectinfo where `NAME` =  #{projectName}
+    </select>
+
+    <select id="queryProjectsByUserAccount" resultMap="projectInfoMap">
+        select <include refid="public_col_list"/>
+        from aps_projectinfo where CREATE_USERID =
+        (select ID from aps_userinfo where USER_ACCOUNT = #{userAccount})
+    </select>
+
+    <select id="queryProjectsUserAdd" resultMap="projectInfoMap">
+        select
+        ap.id,
+        ap.name,
+        ap.create_userid,
+        ap.privacy,
+        ap.tag,
+        ap.desc,
+        ap.create_time
+        from aps_projectinfo ap,aps_user_project_relation aup,aps_userinfo au
+        where ap.id = aup.project_id and  au.id = aup.user_id and au.user_account = #{userAccount} and aup.user_role = 0
+    </select>
+
+    <select id="queryUsersByProjectName" resultMap="projectInfoMap">
+
+        select
+        pp.ID,
+        uu.ID USERID,
+        uu.USER_ACCOUNT,
+        uu.USER_NAME
+        from aps_projectinfo pp,aps_userinfo uu,aps_user_project_relation up
+        where
+        pp.id = up.project_id and uu.id = up.user_id and pp.`name` = #{projectName};
+
+    </select>
+
+    <select id="queryPublicProject" resultMap="projectInfoOOVMap">
+
+        select ap.*,au.user_name from aps_projectinfo ap , aps_userinfo au
+        where ap.privacy = 1 and ap.create_userid = au.id
+        <if test="projectName!=null and createUser!=null">
+            and ap.NAME regexp #{projectName} and au.USER_NAME regexp #{createUser}
+        </if>
+        <if test="projectName!=null and createUser==null">
+            and ap.NAME regexp #{projectName}
+        </if>
+        <if test="projectName==null and createUser!=null">
+            and  au.USER_NAME regexp #{createUser}
+        </if>
+
+    </select>
+
+    <delete id="deleteProject">
+        delete  from aps_projectinfo where `id` = #{projectId}
+    </delete>
+
+    <delete id="deleteRelationProAndUser">
+        delete  from aps_user_project_relation where project_id = #{projectId}
+    </delete>
+
+</mapper>

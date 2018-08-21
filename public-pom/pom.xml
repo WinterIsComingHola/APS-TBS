@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.roli</groupId>
+    <artifactId>public-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <modules>
+        <module>public-common</module>
+    </modules>
+    <packaging>pom</packaging>
+
+    <!-- 版本管理，这样保证整个项目的版本号统一 -->
+    <properties>
+        <!-- 定义项目字符集编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <argLine>-Dfile.encoding=UTF-8</argLine>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+
+        <!-- 定义Maven插件版本 -->
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+        <maven-compiler-plugin.version>3.6.2</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
+        <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
+        <maven-assembly-plugin.version>2.4.1</maven-assembly-plugin.version>
+        <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+
+        <!-- 定义是否检测重复类 -->
+        <duplicatefinder.skip>true</duplicatefinder.skip>
+        <!--定义私有仓库地址-->
+        <maven.mirror.url>http://106.14.224.255:10804/nexus/content/</maven.mirror.url>
+
+
+        <!-- 依赖版本 -->
+        <!-- spring -->
+        <org.springframework.version>4.3.10.RELEASE</org.springframework.version>
+        <com.springsource.org.aspectj.weaver.version>1.7.2.RELEASE</com.springsource.org.aspectj.weaver.version>
+
+        <!-- mybatis -->
+        <org.mybatis.version>3.4.4</org.mybatis.version>
+        <mybatis-spring.version>1.3.1</mybatis-spring.version>
+        <!--mybatis支持java8中新的时间类-->
+        <mybatis.typehandleer>1.0.2</mybatis.typehandleer>
+
+        <!-- http -->
+        <httpasyncclient.version>4.1.2</httpasyncclient.version>
+        <httpmime.version>4.5.2</httpmime.version>
+
+        <!-- view -->
+        <sitemesh.version>2.4.2</sitemesh.version>
+        <freemarker.version>2.3.23</freemarker.version>
+        <jstl.verson>1.2.1</jstl.verson>
+        <taglib.version>1.2</taglib.version>
+        <!-- DB、cache、事务 -->
+        <mysql.version>5.1.44</mysql.version>
+        <com.springsource.org.logicalcobwebs.proxool.version>0.9.1</com.springsource.org.logicalcobwebs.proxool.version>
+        <druid.version>1.0.14</druid.version>
+        <jedis.version>2.7.2</jedis.version>
+        <jta.version>1.1</jta.version>
+        <transactions-jdbc.version>3.9.3</transactions-jdbc.version>
+        <!-- log -->
+        <log4j.version>1.2.16</log4j.version>
+        <org.slf4j.version>1.6.1</org.slf4j.version>
+        <!-- 序列化 -->
+        <jackson.version>2.8.1</jackson.version>
+        <!--jackson支持java8时间格式-->
+        <jackson.datatype.jsr310.version>2.9.0</jackson.datatype.jsr310.version>
+        <jackson.module.parameter.names.version>2.9.0</jackson.module.parameter.names.version>
+        <jackson.datatype.jdk8.version>2.9.0</jackson.datatype.jdk8.version>
+        <kryo.version>2.24.0</kryo.version>
+        <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
+        <!-- javax -->
+        <javax.annotation.version>1.1.0.v201105051105</javax.annotation.version>
+        <javax.annotation-api.version>1.2</javax.annotation-api.version>
+        <javax.validation.version>1.0.0.GA</javax.validation.version>
+
+
+        <!-- common -->
+        <commons-httpclient.version>3.1</commons-httpclient.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
+        <commons-beanutils.version>1.8.0</commons-beanutils.version>
+        <commons-fileupload.version>1.2.2</commons-fileupload.version>
+        <commons-io.version>2.1</commons-io.version>
+        <commons-collections.version>4.1</commons-collections.version>
+        <commons-codec.version>1.9</commons-codec.version>
+        <commons-pool2.version>2.4.2</commons-pool2.version>
+        <commons-net.version>3.3</commons-net.version>
+        <jsch.version>0.1.53</jsch.version>
+
+        <!-- tomcat -->
+        <tomcat.version>8.0.45</tomcat.version>
+
+        <!-- other -->
+        <jdk.version>1.8</jdk.version>
+        <pinyin4j.version>2.5.0</pinyin4j.version>
+        <poi-ooxml.version>3.15</poi-ooxml.version>
+        <hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
+        <junit.version>4.12</junit.version>
+        <testng.version>6.8</testng.version>
+        <aopalliance.version>1.0</aopalliance.version>
+        <aspectjweaver.version>1.8.0</aspectjweaver.version>
+        <apache-poi>3.10-FINAL</apache-poi>
+        <urlrewrite.version>3.1.0</urlrewrite.version>
+        <jmagick.version>6.6.9</jmagick.version>
+        <ant.version>1.9.5</ant.version>
+        <solr.version>6.6.0</solr.version>
+    </properties>
+
+    <dependencyManagement>
+
+    </dependencyManagement>
+    <!--
+    <dependencies>
+        <dependency>
+            <groupId>com.ai</groupId>
+            <artifactId>public-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    -->
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <!-- 定义JDK版本 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
+                </plugin>
+
+                <!-- 定义单元测试标准 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <skip>false</skip>
+                        <skipTests>true</skipTests>
+                        <testFailureIgnore>true</testFailureIgnore>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${maven-antrun-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <configuration>
+                                <!-- 必须设定failOnError=false，否则build会报“至少需要一个文件”错误 -->
+                                <failOnError>false</failOnError>
+                                <target>
+                                    <checksum>
+                                        <fileset dir="target">
+                                            <include name="*" />
+                                        </fileset>
+                                    </checksum>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>${maven-war-plugin.version}</version>
+                    <configuration>
+                        <warName>${project.artifactId}-${project.version}-${maven.build.timestamp}</warName>
+                        <archive>
+                            <index>true</index>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                            </manifest>
+                            <manifestEntries>
+                                <Specification-Vendor>The Store Corp.</Specification-Vendor>
+                            </manifestEntries>
+                            <manifestSections>
+                                <manifestSection>
+                                    <name>Build Information</name>
+                                    <manifestEntries>
+                                        <Project>${project.artifactId}</Project>
+                                        <ProjectVersion>${project.version}</ProjectVersion>
+                                        <!--<svnRevision>${SVN.committedRevision}</svnRevision>-->
+                                        <BuildTime>${maven.build.timestamp}</BuildTime>
+                                        <BaseLine>${project.artifactId}-${project.version}-${maven.build.timestamp}</BaseLine>
+                                    </manifestEntries>
+                                </manifestSection>
+                                <!--<manifestSection>
+                                    <name>Job Information</name>
+                                    <manifestEntries>
+                                        <JobURL>${JOB_URL}</JobURL>
+                                        <JobBuildURL>${BUILD_URL}</JobBuildURL>
+                                    </manifestEntries>
+                                </manifestSection>-->
+                            </manifestSections>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>config/dev/</exclude>
+                    <exclude>config/production/</exclude>
+                    <exclude>config/test/</exclude>
+                </excludes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>config/${active.profilename}/**</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>nexus Releases</name>
+            <url>${maven.mirror.url}groups/PublicRepositories/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <name>nexus Releases</name>
+            <url>${maven.mirror.url}groups/PublicRepositories/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>xuxinyu Nexus Repository</name>
+            <url>
+                ${maven.mirror.url}repositories/releases/
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>xuxinyu Nexus Repository</name>
+            <url>
+                ${maven.mirror.url}repositories/snapshots/
+            </url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <profiles>
+        <!-- 开发/测试本地环境，默认激活 -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <active.profilename>dev</active.profilename>
+                <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
+                <active.name>apsadmin</active.name>
+                <active.pwd>UZagUSZ66Cvstq5OI4udfQ==</active.pwd>
+                <active.url>jdbc:mysql://10.56.23.145:3306/aps-db?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
+                <active.createPropertyFile>false</active.createPropertyFile>
+                <active.autoReload>true</active.autoReload>
+            </properties>
+        </profile>
+        <!-- 测试环境 -->
+        <profile>
+            <id>test</id>
+<!--            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>-->
+            <properties>
+                <active.profilename>test</active.profilename>
+                <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
+                <active.name>dev_nj</active.name>
+                <active.pwd>s2jGEMUUrmQxN2TCSZD0Rg==</active.pwd>
+                <active.url>jdbc:mysql://192.168.199.110:3306/db_apsmock?characterEncoding=utf8</active.url>
+                <active.createPropertyFile>false</active.createPropertyFile>
+                <active.autoReload>true</active.autoReload>
+            </properties>
+        </profile>
+        <!-- 生产环境 -->
+        <profile>
+            <id>production</id>
+            <properties>
+                <active.profilename>production</active.profilename>
+                <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
+                <active.name>apsadmin</active.name>
+                <active.pwd>UZagUSZ66Cvstq5OI4udfQ==</active.pwd>
+                <active.url>jdbc:mysql://10.56.23.145:3306/config-center?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
+                <active.createPropertyFile>false</active.createPropertyFile>
+                <active.autoReload>true</active.autoReload>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
