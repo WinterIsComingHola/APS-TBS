@@ -32,14 +32,17 @@ public class ApiInfoServiceImpl implements ApiInfoService{
     SoaRestScheduler soaRestScheduler;
 
     @Override
-    public List<Map<String,Object>> queryApiByProjectid(String projectid){
+    public ResultSoaRest queryApiByProjectid(String projectid,String page, String limit){
         ApsSoaParam soaParam = new ApsSoaParam();
-        soaParam.setBusinessParam(projectid);
+        Map<String,String> mapParam = new HashMap<>();
+        mapParam.put("projectid",projectid);
+        mapParam.put("pageNum",page);
+        mapParam.put("pageSize",limit);
+        soaParam.setBusinessParam(JacksonUtils.toJson(mapParam));
 
         //调用restful服务
         ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"api/queryApiByProjectid.action",soaParam);
-        List<Map<String,Object>> apiInfoList = (List<Map<String,Object>>)resultSoaRest.getAttribute("apiinfos");
-        return apiInfoList;
+        return resultSoaRest;
     }
 
     @Override

@@ -109,6 +109,7 @@
         select
         <include refid="pubApiCols"/>
         from aps_api where `PROJECT_ID` = #{projectid} and ISACTIVE = 1
+        order by create_time desc
     </select>
 
     <select id="queryApiInfoByApiId" resultMap="apiInfoMapWithUser">

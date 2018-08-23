@@ -149,4 +149,34 @@ public class UserInfoServiceImpl implements UserInfoService{
         return userInfoList;
     }
 
+    @Override
+    public UserInfo queryUserInfoByAccount(String account) throws BusinessException{
+        CustomAssert.isNotEmpty(account,ErrorsEnum.PARAM_NULL);
+        UserInfo userInfo = userInfoMapper.queryUserInfoByAccount(account);
+        return userInfo;
+    }
+
+    @Override
+    @Transactional
+    public void updateUserAccount(String UserAccount,String UserId) throws BusinessException, SecurityException{
+        CustomAssert.isNotEmpty(UserAccount,ErrorsEnum.PARAM_NULL);
+        CustomAssert.isNotEmpty(UserId,ErrorsEnum.PARAM_NULL);
+        userInfoMapper.updateAccountById(UserAccount,UserId);
+    }
+    @Override
+    @Transactional
+    public void updateUserName(String UserName,String UserId) throws BusinessException, SecurityException{
+        CustomAssert.isNotEmpty(UserName,ErrorsEnum.PARAM_NULL);
+        CustomAssert.isNotEmpty(UserId,ErrorsEnum.PARAM_NULL);
+        userInfoMapper.updateUserNameById(UserName,UserId);
+    }
+
+    @Override
+    public int queryAccountCount(String newUserAccount) throws BusinessException{
+        CustomAssert.isNotEmpty(newUserAccount,ErrorsEnum.PARAM_NULL);
+
+         int count = userInfoMapper.queryAccountCountById(newUserAccount);
+        return count;
+    }
+
 }

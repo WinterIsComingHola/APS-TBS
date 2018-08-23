@@ -19,7 +19,18 @@ public interface UserInfoService {
 
     public ResultSoaRest resetUserPass(Map<String,String> userMap) throws BusinessException;
 
-    public Table queryAllUser(Integer projectid,Integer isInv,
+    public Table queryAllUser(Integer projectid,
+                              Integer isInv,
                               String userAccount,
-                              String userName);
+                              String userName,
+                              String page,
+                              String limit);
+
+    public ResultSoaRest queryUserByAccount(String account) throws BusinessException;
+
+    public ResultSoaRest resetAccount(String account,String userId) throws BusinessException;
+
+    public ResultSoaRest resetUserName(String userName,String userId) throws BusinessException;
+
+    public ResultSoaRest queryAccountCount(String newUserAccount) throws BusinessException;
 }

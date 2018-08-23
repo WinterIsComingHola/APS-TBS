@@ -15,13 +15,13 @@ import java.util.List;
 public interface ProjectInfoService {
 
     //查询公共项目
-    public ProjectForAjax queryPublicProjectInfos(String projectName,String createUser);
+    public ProjectForAjax queryPublicProjectInfos(String projectName,String createUser, String pageNum, String pageSize);
     //加入项目
     public ResultSoaRest joinProject(String userAccount, Integer projectid, Integer isMaster) throws BusinessException;
     //根据用户账户查询项目信息
-    public List<ProjectInfo> getProjectInfosByUserAccount(String userAccount,String userRole) throws BusinessException;
+    public List<ProjectInfo> getProjectInfosByUserAccount(String userAccount,String userRole,String page, String limit) throws BusinessException;
 
-    public ProjectForAjax getMyProjectForAjax(String userAccount,Integer userRole) throws BusinessException;
+    public ProjectForAjax getMyProjectForAjax(String userAccount,String userRole, String pageNum, String pageSize) throws BusinessException;
 
 
     //新增项目

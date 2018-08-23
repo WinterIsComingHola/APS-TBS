@@ -41,7 +41,7 @@ public class ProjectController {
 
     @RequestMapping(value = "/aps/project/getpub",method = RequestMethod.POST)
     @ResponseBody
-    public ProjectForAjax getPublicProject(String projectName,String createUser){
+    public ProjectForAjax getPublicProject(String projectName,String createUser, String page, String limit){
 
         if(StringUtils.isEmpty(projectName)&&StringUtils.isEmpty(createUser)){
             projectName = null;
@@ -51,7 +51,7 @@ public class ProjectController {
         }else if(StringUtils.isEmpty(createUser)){
             createUser = null;
         }
-        ProjectForAjax projectForAjax = projectInfoService.queryPublicProjectInfos(projectName,createUser);
+        ProjectForAjax projectForAjax = projectInfoService.queryPublicProjectInfos(projectName,createUser,page,limit);
         return projectForAjax;
     }
 
@@ -76,10 +76,10 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/aps/project/mypublic",method = RequestMethod.GET)
-    public String getMyPublicProject(String userAccount,String userRole,Model model){
+    public String getMyPublicProject(String userAccount,String userRole,Model model,String page, String limit){
 
         try{
-            List<ProjectInfo> projectInfoList = projectInfoService.getProjectInfosByUserAccount(userAccount,userRole);
+            List<ProjectInfo> projectInfoList = projectInfoService.getProjectInfosByUserAccount(userAccount,userRole,page,limit);
             if(projectInfoList.size()==0){
                 model.addAttribute("projects",0);
             }else{
@@ -99,11 +99,11 @@ public class ProjectController {
 
     @RequestMapping(value = "/aps/project/myprojects",method = RequestMethod.POST)
     @ResponseBody
-    public ProjectForAjax getMyPublicProjectForAjax(String userAccount,Integer userRole){
+    public ProjectForAjax getMyPublicProjectForAjax(String userAccount,String userRole, String page, String limit){
 
         ProjectForAjax projectForAjax = null;
         try {
-            projectForAjax = projectInfoService.getMyProjectForAjax(userAccount,userRole);
+            projectForAjax = projectInfoService.getMyProjectForAjax(userAccount,userRole,page,limit);
         } catch (BusinessException e) {
             projectForAjax.setCode(-1);
             projectForAjax.setMsg("failed");

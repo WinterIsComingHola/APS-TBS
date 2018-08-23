@@ -1,5 +1,6 @@
 package com.roli.apsimock.services.user.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.roli.apsimock.dao.project.ProjectInfoMapper;
 import com.roli.apsimock.dao.user.UserInfoMapper;
 import com.roli.apsimock.model.project.ProUserRel;
@@ -11,6 +12,8 @@ import com.roli.apsimock.services.user.ProjectInfoService;
 import com.roli.common.exception.BusinessException;
 import com.roli.common.exception.CustomAssert;
 import com.roli.common.model.enums.ErrorsEnum;
+import com.ruoli.soa.model.Datagrid;
+import com.ruoli.soa.utils.PageFenYeUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,9 +121,10 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     @Override
-    public List<ProjectInfoOOV> queryPublicProject(String projectName,String createUser){
-        List<ProjectInfoOOV> projectInfos = projectInfoMapper.queryPublicProject(projectName,createUser);
-        return projectInfos;
+    @Transactional
+    public List<ProjectInfoOOV> queryPublicProject(String projectName, String createUser)
+    {
+        return projectInfoMapper.queryPublicProject(projectName, createUser);
     }
 
     /*

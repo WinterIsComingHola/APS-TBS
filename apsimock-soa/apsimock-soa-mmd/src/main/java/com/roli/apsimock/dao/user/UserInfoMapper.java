@@ -32,5 +32,11 @@ public interface UserInfoMapper {
     public void updateAccountPass(@Param("userAccount") String account,@Param("newPass")String newPass);
     //根据用户id查询用户名称
     public String queryUserNameByUserid(@Param("userId") Integer userId);
+    //根据用户id更改用户账号
+    public void updateAccountById(@Param("newUserAccount") String account,@Param("userId")String userId);
+    //根据用户id更改用户名
+    public void updateUserNameById(@Param("newUserName") String userName,@Param("userId")String userId);
+    //根据用户id和用户名查询是否重名
+    public int queryAccountCountById(@Param("newUserAccount") String newUserAccount);
 
 }

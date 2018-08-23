@@ -126,10 +126,10 @@ public class UserInfoServiceImpl implements UserInfoService{
     }
 
     @Override
-    public Table queryAllUser(Integer projectid,
-                              Integer isInv,
+    public Table queryAllUser(Integer projectid,Integer isInv,
                               String userAccount,
-                              String userName){
+                              String userName,
+                              String page, String limit){
 
         ApsSoaParam soaParam = new ApsSoaParam();
         Map<String,Object> mapParam = new HashMap<>();
@@ -141,6 +141,8 @@ public class UserInfoServiceImpl implements UserInfoService{
         mapParam.put("isInv",isInv);
         mapParam.put("userAccount",userAccount);
         mapParam.put("userName",userName);
+        mapParam.put("pageNum", page);
+        mapParam.put("pageSize", limit);
 
         soaParam.setBusinessParam(JacksonUtils.toJson(mapParam));
 
@@ -162,9 +164,79 @@ public class UserInfoServiceImpl implements UserInfoService{
 
         table.setCode(0);
         table.setMsg("");
-        table.setCount(listMap.size());
+        table.setCount(Integer.parseInt(resultSoaRest.getAttribute("total").toString()));
         table.setData(listMap);
         return table;
+    }
+
+    /**
+     *
+     * @param account
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public ResultSoaRest queryUserByAccount(String account) throws BusinessException {
+
+        ResultSoaRest result = new ResultSoaRest();
+
+        ApsSoaParam soaParam = new ApsSoaParam();
+        soaParam.setBusinessParam(account);
+        //调用restful服务
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"user/getUserInfoByAccount.action",soaParam);
+
+        if(resultSoaRest.getState()==207){
+            BusinessException.throwMessage(ErrorsEnum.ACCOUNT_DATA_NULL);
+        }
+
+        result.setState(resultSoaRest.getState());
+        result.setSuccess(resultSoaRest.isSuccess());
+        result.setMessage(resultSoaRest.getMessage());
+        result.addAttribute("UserInfo",resultSoaRest.getAttribute("UserInfo"));
+        return result;
+    }
+
+
+    @Override
+    public ResultSoaRest resetAccount(String account,String userId) throws BusinessException {
+        ResultSoaRest result = new ResultSoaRest();
+
+        ApsSoaParam soaParam = new ApsSoaParam();
+        Map<String,Object> userMap = new HashMap();
+        userMap.put("newAccount",account);
+        userMap.put("UserId",userId);
+        soaParam.setBusinessParam(JacksonUtils.toJson(userMap));
+
+        //调用restful服务
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"user/updateAccountById.action",soaParam);
+
+        if(resultSoaRest.getState()==207){
+            BusinessException.throwMessage(ErrorsEnum.ACCOUNT_DATA_NULL);
+        }
+
+        result.setState(resultSoaRest.getState());
+        result.setSuccess(resultSoaRest.isSuccess());
+        result.setMessage(resultSoaRest.getMessage());
+        return result;
+    }
+
+    public ResultSoaRest resetUserName(String userName,String userId) throws BusinessException{
+        ApsSoaParam soaParam = new ApsSoaParam();
+        Map<String,Object> userMap = new HashMap();
+        userMap.put("newUserName",userName);
+        userMap.put("UserId",userId);
+        soaParam.setBusinessParam(JacksonUtils.toJson(userMap));
+        //调用restful服务
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"user/updateUserNameById.action",soaParam);
+        return resultSoaRest;
+    }
+
+    public ResultSoaRest queryAccountCount(String newUserAccount) throws BusinessException{
+        ApsSoaParam soaParam = new ApsSoaParam();
+        soaParam.setBusinessParam(newUserAccount);
+        //调用restful服务
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"user/queryAccountCount.action",soaParam);
+        return resultSoaRest;
     }
 
 }

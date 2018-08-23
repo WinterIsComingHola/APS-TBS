@@ -1,5 +1,6 @@
 package com.roli.apsimock.controller.project;
 
+import com.github.pagehelper.PageHelper;
 import com.roli.apsimock.model.ApsSoaParam;
 import com.roli.apsimock.model.project.ProjectInfo;
 import com.roli.apsimock.model.project.ProjectInfoOOV;
@@ -11,7 +12,9 @@ import com.roli.common.exception.BusinessException;
 import com.roli.common.model.enums.ErrorsEnum;
 import com.roli.common.utils.json.JacksonUtils;
 import com.ruoli.soa.annotation.SoaRestAuth;
+import com.ruoli.soa.model.Datagrid;
 import com.ruoli.soa.model.ResultSoaRest;
+import com.ruoli.soa.utils.PageFenYeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,12 +140,21 @@ public class ProjectInfoController {
 
             try{
 
-                String userAccount = apsSoaParam.getBusinessParam();
+                Map<String, String> mapParam = JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+                String userAccount = mapParam.get("userAccount");
+                int pageNum = Integer.parseInt(mapParam.get("pageNum"));
+                int pageSize = Integer.parseInt(mapParam.get("pageSize"));
+                PageHelper.startPage(pageNum, pageSize);
                 List<ProjectInfo> projectInfos = projectInfoService.queryProjectsByUserAccount(userAccount);
+                PageFenYeUtils<ProjectInfo> pageFenYeUtils = new PageFenYeUtils();
+                Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(projectInfos);
+
                 resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
                 resultSoaRest.setSuccess(true);
                 resultSoaRest.setMessage("success");
-                resultSoaRest.addAttribute("projects",projectInfos);
+                resultSoaRest.addAttribute("projects",datagrid.getList());
+                resultSoaRest.addAttribute("total", datagrid.getTotal());
+
             }catch (BusinessException e){
                 logger.error("/aps/rest/project/getProjectInfosByUserAccount 业务处理异常",e);
                 resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
@@ -176,13 +188,21 @@ public class ProjectInfoController {
         if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
 
             try{
+                Map<String, String > mapParam = JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+                String userAccount = mapParam.get("userAccount");
+                int pageNum = Integer.parseInt(mapParam.get("pageNum"));
+                int pageSize = Integer.parseInt(mapParam.get("pageSize"));
 
-                String userAccount = apsSoaParam.getBusinessParam();
+                PageHelper.startPage(pageNum,pageSize);
                 List<ProjectInfo> projectInfos = projectInfoService.queryProjectsUserAdd(userAccount);
+                PageFenYeUtils<ProjectInfo> pageFenYeUtils = new PageFenYeUtils<>();
+                Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(projectInfos);
+
                 resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
                 resultSoaRest.setSuccess(true);
                 resultSoaRest.setMessage("success");
-                resultSoaRest.addAttribute("projects",projectInfos);
+                resultSoaRest.addAttribute("projects",datagrid.getList());
+                resultSoaRest.addAttribute("total", datagrid.getTotal());
             }catch (BusinessException e){
                 logger.error("/aps/rest/project/getProjectInfosUserAdd 业务处理异常",e);
                 resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
@@ -283,13 +303,24 @@ public class ProjectInfoController {
         Map<String,String> mapParam = JacksonUtils.str2map(apsSoaParam.getBusinessParam());
         String projectName = mapParam.get("projectName");
         String createUser = mapParam.get("createUser");
+        int pageNum = Integer.parseInt(mapParam.get("pageNum"));
+        int pageSize = Integer.parseInt(mapParam.get("pageSize"));
 
         if(apsSoaParam != null){
-            List<ProjectInfoOOV> projectInfos = projectInfoService.queryPublicProject(projectName,createUser);
+
+            PageHelper.startPage(pageNum, pageSize);
+
+            List<ProjectInfoOOV> list = projectInfoService.queryPublicProject(projectName,createUser);
+
+            PageFenYeUtils<ProjectInfoOOV> pageFenYeUtils = new PageFenYeUtils();
+
+            Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(list);
+
             resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
             resultSoaRest.setSuccess(true);
             resultSoaRest.setMessage("success");
-            resultSoaRest.addAttribute("projects",projectInfos);
+            resultSoaRest.addAttribute("projects",datagrid.getList());
+            resultSoaRest.addAttribute("total",datagrid.getTotal());
 
         }else{
             resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());

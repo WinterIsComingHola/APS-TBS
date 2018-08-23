@@ -1,5 +1,6 @@
 package com.roli.apsimock.controller.user;
 
+import com.github.pagehelper.PageHelper;
 import com.roli.apsimock.model.ApsSoaParam;
 import com.roli.apsimock.model.user.UserFieldForget;
 import com.roli.apsimock.model.user.UserInfo;
@@ -12,8 +13,10 @@ import com.roli.common.exception.SecurityException;
 import com.roli.common.model.enums.ErrorsEnum;
 import com.roli.common.utils.json.JacksonUtils;
 import com.ruoli.soa.annotation.SoaRestAuth;
+import com.ruoli.soa.model.Datagrid;
 import com.ruoli.soa.model.Result;
 import com.ruoli.soa.model.ResultSoaRest;
+import com.ruoli.soa.utils.PageFenYeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,13 +266,19 @@ public class UserInfoController {
             Integer isInv = (Integer) mapParam.get("isInv");
             String userAccount = (String)mapParam.get("userAccount");
             String userName = (String)mapParam.get("userName");
+            int pageNum = Integer.parseInt(mapParam.get("pageNum").toString());
+            int pageSize = Integer.parseInt(mapParam.get("pageSize").toString());
 
             try{
+                PageHelper.startPage(pageNum,pageSize);
                 List<UserInfo> userInfoList = userInfoService.queryAllUser(projectid,isInv,userAccount,userName);
+                PageFenYeUtils<UserInfo> pageFenYeUtils = new PageFenYeUtils<>();
+                Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(userInfoList);
                 resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
                 resultSoaRest.setSuccess(true);
                 resultSoaRest.setMessage("success");
-                resultSoaRest.addAttribute("users",userInfoList);
+                resultSoaRest.addAttribute("users",datagrid.getList());
+                resultSoaRest.addAttribute("total",datagrid.getTotal());
             } catch (BusinessException e) {
                 logger.error("/aps/rest/getallusers 业务处理异常",e);
                 resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
@@ -287,4 +296,154 @@ public class UserInfoController {
     }
 
 
+    /**
+     * 根据修改id和newAccount修改用户账号
+     * @author chenxu
+     * @date 2018/8/18 上午10:24
+     */
+    @RequestMapping(value = "/aps/rest/user/updateAccountById",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest updateAccountById(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+            Map<String,Object> mapParam =  JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+            try{
+                String newAccount = (String)mapParam.get("newAccount");
+                String UserId =(String)mapParam.get("UserId");
+                userInfoService.updateUserAccount(newAccount,UserId);
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.setMessage("success");
+            } catch (BusinessException e) {
+                logger.error("/aps/rest/user/updateAccountById",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }catch (SecurityException e) {
+                logger.error("/aps/rest/user/updateAccountById",e);
+                resultSoaRest.setState(ErrorsEnum.SECURITY_ERROR.getErrorCode());
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }
+
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+    /**
+     * 通过用户账号查询用户信息
+     * @author chenxu
+     * @date 2018/8/18 下午17:34
+     */
+    @RequestMapping(value = "/aps/rest/user/getUserInfoByAccount",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest getUserInfoByAccount(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+            String  account =  apsSoaParam.getBusinessParam();
+            try{
+                UserInfo userInfo = userInfoService.queryUserInfoByAccount(account);
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.setMessage("success");
+                resultSoaRest.addAttribute("UserInfo",userInfo);
+            } catch (BusinessException e) {
+                logger.error("/aps/rest/user/getUserInfoByAccount",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+
+            }
+
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+    /**
+     * 根据id和newUserName修改用户账号
+     * @author chenxu
+     * @date 2018/8/18 上午10:24
+     */
+    @RequestMapping(value = "/aps/rest/user/updateUserNameById",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest updateUserNameById(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+            Map<String,Object> mapParam =  JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+            try{
+                String newUserName = (String)mapParam.get("newUserName");
+                String UserId =(String)mapParam.get("UserId");
+                userInfoService.updateUserName(newUserName,UserId);
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.setMessage("success");
+            } catch (BusinessException e) {
+                logger.error("/aps/rest/user/updateUserNameById",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }catch (SecurityException e) {
+                logger.error("/aps/rest/user/updateUserNameById",e);
+                resultSoaRest.setState(ErrorsEnum.SECURITY_ERROR.getErrorCode());
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }
+
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+
+    /**
+     * 通过用户账号查询用户信息
+     * @author chenxu
+     * @date 2018/8/18 下午17:34
+     */
+    @RequestMapping(value = "/aps/rest/user/queryAccountCount",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest queryAccountCount(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+            String  newUserAccount =  apsSoaParam.getBusinessParam();
+            try{
+                int count = userInfoService.queryAccountCount(newUserAccount);
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.setMessage("success");
+                resultSoaRest.addAttribute("count",count);
+            } catch (BusinessException e) {
+                logger.error("/aps/rest/user/queryAccountCount",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+
+            }
+
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
 }

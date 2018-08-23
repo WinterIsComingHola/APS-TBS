@@ -32,7 +32,7 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     SoaRestScheduler soaRestScheduler;
 
     @Override
-    public ProjectForAjax queryPublicProjectInfos(String projectName,String createUser){
+    public ProjectForAjax queryPublicProjectInfos(String projectName,String createUser,String pageNum, String pageSize){
         ApsSoaParam soaParam = new ApsSoaParam();
         ProjectForAjax projectForAjax = new ProjectForAjax();
         List<ProjectForAjaxDetail> list = new ArrayList<>();
@@ -40,6 +40,8 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
         Map<String,String> mapParam = new HashMap<>();
         mapParam.put("projectName",projectName);
         mapParam.put("createUser",createUser);
+        mapParam.put("pageNum", pageNum);
+        mapParam.put("pageSize", pageSize);
         soaParam.setBusinessParam(JacksonUtils.toJson(mapParam));
 
         //调用restful服务
@@ -63,7 +65,7 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
 
         projectForAjax.setCode(0);
         projectForAjax.setMsg("");
-        projectForAjax.setCount(list.size());
+        projectForAjax.setCount(Integer.valueOf(resultSoaRest.getAttribute("total").toString()));
         projectForAjax.setData(list);
 
         return projectForAjax;
@@ -92,9 +94,13 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     @Override
-    public List<ProjectInfo> getProjectInfosByUserAccount(String userAccount,String userRole) throws BusinessException {
+    public List<ProjectInfo> getProjectInfosByUserAccount(String userAccount,String userRole,String page, String limit) throws BusinessException {
         ApsSoaParam soaParam = new ApsSoaParam();
-        soaParam.setBusinessParam(userAccount);
+        Map<String,String> mapParam = new HashMap<>();
+        mapParam.put("userAccount",userAccount);
+        mapParam.put("pageNum",page);
+        mapParam.put("pageSize",limit);
+        soaParam.setBusinessParam(JacksonUtils.toJson(mapParam));
         ResultSoaRest resultSoaRest = null;
         if(userRole.equals("1")){
             //为1时。调用的是getProjectInfosByUserAccount
@@ -116,20 +122,23 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     @Override
-    public ProjectForAjax getMyProjectForAjax(String userAccount,Integer userRole) throws BusinessException {
+    public ProjectForAjax getMyProjectForAjax(String userAccount,String userRole, String pageNum, String pageSize) throws BusinessException {
         ApsSoaParam soaParam = new ApsSoaParam();
 
         ProjectForAjax projectForAjax = new ProjectForAjax();
         List<ProjectForAjaxDetail> list = new ArrayList<>();
         ResultSoaRest resultSoaRest = null;
-       // Map<String,String> mapParam = new HashMap<>();
-        soaParam.setBusinessParam(userAccount);
+        Map<String,String> mapParam = new HashMap<>();
+        mapParam.put("userAccount",userAccount);
+        mapParam.put("pageNum", pageNum);
+        mapParam.put("pageSize", pageSize);
+        soaParam.setBusinessParam(JacksonUtils.toJson(mapParam));
 
-        if(userRole == 1){
+        if(userRole .equals("1")){
             //为1时。调用的是getProjectInfosByUserAccount
              resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"project/getProjectInfosByUserAccount.action",soaParam);
 
-        }else if(userRole == 0){
+        }else if(userRole .equals("0")){
             //为0时。调用的是getProjectInfosUserAdd
              resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"project/getProjectInfosUserAdd.action",soaParam);
 
@@ -156,7 +165,7 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
 
         projectForAjax.setCode(0);
         projectForAjax.setMsg("");
-        projectForAjax.setCount(list.size());
+        projectForAjax.setCount(Integer.parseInt(resultSoaRest.getAttribute("total").toString()));
         projectForAjax.setData(list);
 
         return projectForAjax;

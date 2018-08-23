@@ -13,7 +13,7 @@ import java.util.Map;
  * @date 2018/5/22 上午10:12
  */
 public interface ApiInfoService {
-    public List<Map<String,Object>> queryApiByProjectid(String projectid);
+    public ResultSoaRest queryApiByProjectid(String projectid,String page,String limit);
 
     //新增Api
     public ResultSoaRest addApi(ApiInfoOV apiInfoOV) throws BusinessException;

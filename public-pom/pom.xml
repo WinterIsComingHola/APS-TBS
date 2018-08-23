@@ -44,6 +44,8 @@
         <mybatis-spring.version>1.3.1</mybatis-spring.version>
         <!--mybatis支持java8中新的时间类-->
         <mybatis.typehandleer>1.0.2</mybatis.typehandleer>
+        <!--mybatis支持分页功能-->
+        <mybatis.pagehelper>4.1.6</mybatis.pagehelper>
 
         <!-- http -->
         <httpasyncclient.version>4.1.2</httpasyncclient.version>

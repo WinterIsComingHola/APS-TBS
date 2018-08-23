@@ -41,10 +41,11 @@ public class ApiController
     FieldInfoService fieldInfoService;
 
     @RequestMapping(value = "/aps/interface/myinterface", method = RequestMethod.GET)
-    public String getInterfacePage(String projectid, String userAccount,String userRole, Model model)
+    public String getInterfacePage(String projectid, String userAccount,String userRole, Model model,String page, String limit)
     {
 
-        List<Map<String, Object>> apiInfoList = apiInfoService.queryApiByProjectid(projectid);
+        ResultSoaRest resultSoaRest = apiInfoService.queryApiByProjectid(projectid,page,limit);
+        List<Map<String,Object>> apiInfoList = (List<Map<String,Object>>)resultSoaRest.getAttribute("apiinfos");
 
         if (apiInfoList.size() == 0)
         {
@@ -90,10 +91,11 @@ public class ApiController
 
     @RequestMapping(value = "/aps/interface/getApiByProject", method = RequestMethod.POST)
     @ResponseBody
-    public Table getApiByProject(String projectid)
+    public Table getApiByProject(String projectid, String page,String limit)
     {
 
-        List<Map<String, Object>> apiInfoList = apiInfoService.queryApiByProjectid(projectid);
+        ResultSoaRest resultSoaRest = apiInfoService.queryApiByProjectid(projectid,page,limit);
+        List<Map<String, Object>> apiInfoList = (List<Map<String, Object>>)resultSoaRest.getAttribute("apiinfos");
 
         Table table = new Table();
         List<Map<String, Object>> mapList = new ArrayList<>();
@@ -149,7 +151,7 @@ public class ApiController
 
             table.setCode(0);
             table.setMsg("");
-            table.setCount(mapList.size());
+            table.setCount(Integer.parseInt(resultSoaRest.getAttribute("total").toString()));
             table.setData(mapList);
         }
         return table;

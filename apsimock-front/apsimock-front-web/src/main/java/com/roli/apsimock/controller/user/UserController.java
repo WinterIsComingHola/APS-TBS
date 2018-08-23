@@ -34,6 +34,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Controller
@@ -316,6 +317,8 @@ public class UserController {
     @RequestMapping(value = "/aps/user/getallusers",method = RequestMethod.POST)
     @ResponseBody
     public Table queryAllUser(Integer projectid,Integer isInv,
+                              String page,
+                              String limit,
                               String userAccount,
                               String userName){
 
@@ -326,7 +329,7 @@ public class UserController {
             userName = null;
         }
 
-        Table table = userInfoService.queryAllUser(projectid,isInv,userAccount,userName);
+        Table table = userInfoService.queryAllUser(projectid,isInv,userAccount,userName, page, limit);
         return table;
     }
 
@@ -363,5 +366,109 @@ public class UserController {
         }
     }
 
+    /**
+     * 获得用户信息
+     * **/
+    @RequestMapping(value = "/aps/user/userinfo",method = RequestMethod.GET)
+    public String getUserInfo(String userAccount,Model model){
+        ResultSoaRest resultSoaRest = queryUserInfoByAccount(userAccount);
+        model.addAttribute("userId",((LinkedHashMap)resultSoaRest.getAttribute("UserInfo")).get("id"));
+        model.addAttribute("userAccount",((LinkedHashMap)resultSoaRest.getAttribute("UserInfo")).get("userAccount"));
+        model.addAttribute("userName",((LinkedHashMap)resultSoaRest.getAttribute("UserInfo")).get("userName"));
+        int isActive =(int)((LinkedHashMap)resultSoaRest.getAttribute("UserInfo")).get("isActive");
+        String isActiveAttr = "";
+        if(isActive==1){
+            isActiveAttr="激活状态";
+        }
+        if(isActive==0){
+            isActiveAttr="失效状态";
+        }
+        model.addAttribute("isActive",isActiveAttr);
+        return "login/userinfo";
+    }
+
+
+    /**
+     * 查询用户信息接口
+     * **/
+    @ResponseBody
+    public ResultSoaRest queryUserInfoByAccount(String account){
+        ResultSoaRest result = new ResultSoaRest();
+        try {
+            ResultSoaRest resultSoaRest = userInfoService.queryUserByAccount(account);
+
+            result.setState(resultSoaRest.getState());
+            result.setSuccess(resultSoaRest.isSuccess());
+            result.setMessage(resultSoaRest.getMessage());
+            result.addAttribute("UserInfo",resultSoaRest.getAttribute("UserInfo"));
+
+        } catch (BusinessException e) {
+            result.setState(Integer.parseInt(e.getErrCode()));
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
+        }
+        return result;
+    }
+
+
+    /**
+     * 修改用户账号
+     * **/
+    @RequestMapping(value = "/aps/user/updateAccount",method = RequestMethod.GET)
+    public String updateAccount(String userAccount,String userId,Model model){
+        ResultSoaRest result = new ResultSoaRest();
+        try {
+            ResultSoaRest resultSoaRest0 = userInfoService.resetAccount(userAccount, userId);
+        }catch (BusinessException e) {
+            result.setState(Integer.parseInt(e.getErrCode()));
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
+        }
+        return "login/userinfo";
+    }
+
+    /**
+     * 根据用户id修改用户名
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/aps/user/updateUserNameById",method = RequestMethod.POST)
+    @ResponseBody
+    public ResultSoaRest updateUserNameById(HttpServletRequest request){
+        ResultSoaRest result = new ResultSoaRest();
+        String userName=request.getParameter("userName");
+        String userId=request.getParameter("userId");;
+        try{
+            result= userInfoService.resetUserName(userName ,userId);
+        }catch (BusinessException e) {
+            result.setState(Integer.parseInt(e.getErrCode()));
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * 查询是否存在相同用户名的用户
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/aps/user/queryAccountCount",method = RequestMethod.POST)
+    @ResponseBody
+    public ResultSoaRest queryAccountCount(HttpServletRequest request){
+        ResultSoaRest result = new ResultSoaRest();
+        String newUserAccount=request.getParameter("newUserAccount");
+        String userId=request.getParameter("userId");;
+        try{
+            result= userInfoService.queryAccountCount(newUserAccount);
+        }catch (BusinessException e) {
+            result.setState(Integer.parseInt(e.getErrCode()));
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
+        }
+
+        return result;
+    }
 
 }

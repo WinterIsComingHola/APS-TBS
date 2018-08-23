@@ -28,4 +28,12 @@ public interface UserInfoService {
     public List<UserInfo> queryAllUser(String projectid,Integer isInv,
                                        String userAccount,
                                        String userName) throws BusinessException;
+
+    public UserInfo queryUserInfoByAccount(String account) throws BusinessException;
+
+    public void updateUserAccount(String UserAccount,String UserId) throws BusinessException, SecurityException;
+
+    public void updateUserName(String UserName,String UserId) throws BusinessException, SecurityException;
+
+    public int queryAccountCount(String newUserAccount) throws BusinessException;
 }

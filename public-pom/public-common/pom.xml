@@ -163,6 +163,12 @@
             <artifactId>mybatis-typehandlers-jsr310</artifactId>
             <version>${mybatis.typehandleer}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+            <version>${mybatis.pagehelper}</version>
+        </dependency>
+
         <!--  solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>

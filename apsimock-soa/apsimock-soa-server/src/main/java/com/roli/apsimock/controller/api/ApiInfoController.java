@@ -1,5 +1,6 @@
 package com.roli.apsimock.controller.api;
 
+import com.github.pagehelper.PageHelper;
 import com.roli.apsimock.common.utils.MapMultiAnalysis;
 import com.roli.apsimock.model.ApsSoaParam;
 import com.roli.apsimock.model.api.ApiInfo;
@@ -10,7 +11,9 @@ import com.roli.common.exception.BusinessException;
 import com.roli.common.model.enums.ErrorsEnum;
 import com.roli.common.utils.json.JacksonUtils;
 import com.ruoli.soa.annotation.SoaRestAuth;
+import com.ruoli.soa.model.Datagrid;
 import com.ruoli.soa.model.ResultSoaRest;
+import com.ruoli.soa.utils.PageFenYeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.codecs.perfield.PerFieldDocValuesFormat;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,12 +163,20 @@ public class ApiInfoController {
         ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
         if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
             try{
-                String projectid = apsSoaParam.getBusinessParam();
+                Map<String, String> mapParam = JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+                String projectid = mapParam.get("projectid");
+                int pageNum = Integer.parseInt(mapParam.get("pageNum"));
+                int pageSize = Integer.parseInt(mapParam.get("pageSize"));
+
+                PageHelper.startPage(pageNum,pageSize);
                 List<ApiInfo> apiInfos = apiInfoService.queryApiByProjectid(Integer.parseInt(projectid));
+                PageFenYeUtils<ApiInfo> pageFenYeUtils = new PageFenYeUtils<>();
+                Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(apiInfos);
 
                 resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
                 resultSoaRest.setSuccess(true);
-                resultSoaRest.addAttribute("apiinfos",apiInfos);
+                resultSoaRest.addAttribute("apiinfos",datagrid.getList());
+                resultSoaRest.addAttribute("total",datagrid.getTotal());
             }catch (BusinessException e){
                 logger.error("/aps/rest/api/queryApiByProjectid 业务处理异常",e);
                 resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
