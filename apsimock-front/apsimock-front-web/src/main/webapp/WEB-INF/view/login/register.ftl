@@ -16,13 +16,13 @@
   <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
     <div class="layadmin-user-login-main">
       <div class="layadmin-user-login-box layadmin-user-login-header">
-        <h2>TBSK</h2>
+        <h2>TBS</h2>
         <p>接口测试系统</p>
       </div>
       <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
         <div class="layui-form-item">
           <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="LAY-user-login-cellphone"></label>
-          <input type="text" name="userAccount" id="LAY-user-login-cellphone" lay-verify="required" placeholder="苏宁工号" class="layui-input">
+          <input type="text" name="userAccount" id="LAY-user-login-cellphone" lay-verify="required" placeholder="登陆账号" class="layui-input">
         </div>
         <div class="layui-form-item">
           <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>

@@ -320,9 +320,9 @@
             <properties>
                 <active.profilename>production</active.profilename>
                 <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
-                <active.name>apsadmin</active.name>
+                <active.name>ddldata</active.name>
                 <active.pwd>UZagUSZ66Cvstq5OI4udfQ==</active.pwd>
-                <active.url>jdbc:mysql://10.56.23.145:3306/config-center?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
+                <active.url>jdbc:mysql://localhost:3306/config-center?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
                 <active.createPropertyFile>false</active.createPropertyFile>
                 <active.autoReload>true</active.autoReload>
             </properties>

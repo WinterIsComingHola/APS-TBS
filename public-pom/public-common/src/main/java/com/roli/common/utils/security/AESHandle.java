@@ -209,11 +209,11 @@ public class AESHandle {
     public static void main(String[] args) throws Exception{
 
        // String secretKey = "请输入加密的规则";
-        String context = "";
+        String context = "123456";
 
         System.out.println(encryptAES(null,context));
 
-        System.out.println(decryptAES(null,encryptAES(null,context)));
+        System.out.println(decryptAES(null,"s2jGEMUUrmQxN2TCSZD0Rg=="));
     }
 
 
