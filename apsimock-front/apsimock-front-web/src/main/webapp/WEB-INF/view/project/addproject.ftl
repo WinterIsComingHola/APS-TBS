@@ -111,10 +111,11 @@
         base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
     }).extend({
         index: 'lib/index' //主入口模块
-    }).use(['index', 'table','layer','jquery'], function(){
+    }).use(['index', 'table','layer','jquery','laypage'], function(){
         var layer = layui.layer
                 ,$ = layui.jquery
-                ,table = layui.table;
+                ,table = layui.table
+                ,laypage = layui.laypage;
 
         var userList = [];//定义空数组存储用户的选择数据
         var userUnique = [];//去重后的数组
@@ -138,6 +139,8 @@
             ,where:{
                 userAccount:${userAccount},
                 userRole:0
+                ,page:laypage.curr
+                ,limit:laypage.limit
             }
             ,page: true
         });
@@ -178,7 +181,7 @@
             var layEvent = obj.event;//获得 模板中lay-event 对应的值
             if(layEvent==='oper'){//操作接口
 
-                location.href = '${mainDomain}aps/interface/myinterface?projectid='+trdata.projectid+'&userAccount=${userAccount}&userRole=0'; //跳转接口操作页面
+                location.href = '${mainDomain}aps/interface/myinterface?projectid='+trdata.projectid+'&userAccount=${userAccount}&userRole=0&page=1&limit=10'; //跳转接口操作页面
 
             }else if(layEvent==='query'){
 
@@ -206,6 +209,8 @@
                                 ,where:{
                                     projectid:trdata.projectid,
                                     isInv:1
+                                    ,page:laypage.curr
+                                    ,limit:laypage.limit
                                 }
                             });
                         }

@@ -179,15 +179,18 @@
         base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
     }).extend({
         index: 'lib/index' //主入口模块
-    }).use(['index', 'table','layer','jquery'], function(){
+    }).use(['index', 'table','layer','jquery','laypage'], function(){
         var layer = layui.layer
                 ,$ = layui.jquery
-                ,table = layui.table;
+                ,table = layui.table
+                ,laypage = layui.laypage;
 
         var userList = [];//定义空数组存储用户的选择数据
         var userUnique = [];//去重后的数组
         var currentProjectId = null;
 
+        console.log(laypage.curr);
+        console.log(laypage.limit);
         //渲染项目表格
         table.render({
             elem: '#my-project-table'
@@ -205,8 +208,10 @@
                 ,{field:'wealth', width:135, title: '财富', sort: true}*/
             ]]
             ,where:{
-                userAccount:${userAccount},
-                userRole:1
+                userAccount:${userAccount}
+                ,userRole:1
+                ,page:laypage.curr
+                ,limit:laypage.limit
             }
             ,page: true
         });
@@ -247,7 +252,7 @@
             var layEvent = obj.event;//获得 模板中lay-event 对应的值
             if(layEvent==='oper'){//操作接口
 
-                location.href = '${mainDomain}aps/interface/myinterface?projectid='+trdata.projectid+'&userAccount=${userAccount}&userRole=1'; //跳转接口操作页面
+                location.href = '${mainDomain}aps/interface/myinterface?projectid='+trdata.projectid+'&userAccount=${userAccount}&userRole=1&page=1&limit=10'; //跳转接口操作页面
 
             }else if(layEvent==='Invite'){//邀请人员
 
@@ -280,6 +285,8 @@
                                         ,isInv:0
                                         ,userAccount:null
                                         ,userName:null
+                                        ,page:laypage.curr
+                                        ,limit:laypage.limit
                                     }
                                 });
                             }
@@ -514,13 +521,14 @@
 
                                             //关闭完成后，进行表格重载
                                             table.reload('my-project-table',{
-                                                url:'${mainDomain}aps/project/mypublics.action'//去后台重新获取新的表格数据
+                                                url:'${mainDomain}aps/project/myprojects.action'//去后台重新获取新的表格数据
                                                 ,method:'post'
                                                 ,page: {
                                                     curr: 1 //重新从第 1 页开始
                                                 }
                                                 ,where: {
                                                     userAccount:${userAccount}
+                                                    ,userRole:"1"
                                                 }
                                             });
                                         });

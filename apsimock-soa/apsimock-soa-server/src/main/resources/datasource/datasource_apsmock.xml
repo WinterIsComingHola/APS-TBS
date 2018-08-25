@@ -45,6 +45,15 @@
 				<value>classpath*:mapper/Field/*.xml</value>
 			</array>
 		</property>
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageHelper">
+					<property name="properties">
+						<value>dialect=mysql</value>
+					</property>
+				</bean>
+			</array>
+		</property>
 	</bean>
 
 	<bean id="mybatisConfigurer_aps" class="org.mybatis.spring.mapper.MapperScannerConfigurer">

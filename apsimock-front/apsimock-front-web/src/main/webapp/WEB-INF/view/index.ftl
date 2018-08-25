@@ -72,8 +72,8 @@
                             <cite>接口操作</cite>
                         </a>
                         <dl class="layui-nav-child">
-                            <dd data-name="list"><a lay-href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1">我创建的项目</a></dd>
-                            <dd data-name="list"><a lay-href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0">我加入的项目</a></dd>
+                            <dd data-name="list"><a lay-href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1&page=1&limit=10">我创建的项目</a></dd>
+                            <dd data-name="list"><a lay-href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0&page=1&limit=10">我加入的项目</a></dd>
                         </dl>
                     </li>
                     <li data-name="template" class="layui-nav-item">

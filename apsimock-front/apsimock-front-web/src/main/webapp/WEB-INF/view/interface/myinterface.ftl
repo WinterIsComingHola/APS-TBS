@@ -48,9 +48,9 @@
           <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">首页</a>
           <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">公共项目</a>
           <#if userRole == 1>
-              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1">我创建的项目</a>
+              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1&page=1&limit=10">我创建的项目</a>
           <#elseif userRole == 0>
-              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0">我加入的项目</a>
+              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0&page=1&limit=10">我加入的项目</a>
           <#else>
                 <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">首页</a>
           </#if>
@@ -159,10 +159,11 @@
         base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
     }).extend({
         index: 'lib/index' //主入口模块
-    }).use(['index', 'table','layer','jquery'], function(){
+    }).use(['index', 'table','layer','jquery','laypage'], function(){
         var layer = layui.layer
                 ,$ = layui.jquery
-                ,table = layui.table;
+                ,table = layui.table
+                ,laypage = layui.laypage;
 
         //var userList = [];//定义空数组存储用户的选择数据
 
@@ -185,6 +186,8 @@
             ]]
             ,where: {
                 projectid:${projectid}
+                ,page:laypage.curr
+                ,limit:laypage.limit
             }
             ,page: true
         });
@@ -296,6 +299,8 @@
                                                     }
                                                     ,where: {
                                                         projectid:${projectid}
+                                                        ,page: laypage.curr
+                                                        ,limit:laypage.limit
                                                     }
                                                 });
                                             }

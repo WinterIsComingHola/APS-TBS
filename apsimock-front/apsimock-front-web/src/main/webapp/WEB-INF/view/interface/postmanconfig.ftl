@@ -37,13 +37,13 @@
           <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">首页</a>
           <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">公共项目</a>
           <#if userRole == 1>
-              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1">我创建的项目</a>
+              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1&page=1&limit=10">我创建的项目</a>
           <#elseif userRole == 0>
-              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0">我加入的项目</a>
+              <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=0&page=1&limit=10">我加入的项目</a>
           <#else>
                 <a href="${miscDomain}/aps/project/public?userAccount=${userAccount}">首页</a>
           </#if>
-          <a href="${mainDomain}aps/interface/myinterface?projectid=${projectid}&userAccount=${userAccount}&userRole=${userRole}">接口操作</a>
+          <a href="${mainDomain}aps/interface/myinterface?projectid=${projectid}&userAccount=${userAccount}&userRole=${userRole}&page=1&limit=10">接口操作</a>
           <a><cite>POSTMAN</cite></a>
         </span>
         </div>

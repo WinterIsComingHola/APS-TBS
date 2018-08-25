@@ -12,8 +12,6 @@ import java.util.List;
  */
 public class PageFenYeUtils<T>
 {
-    private int pageSize;
-    private int pageCurr;
 
     public Datagrid pageFenYeHandle(List<T> list)
     {

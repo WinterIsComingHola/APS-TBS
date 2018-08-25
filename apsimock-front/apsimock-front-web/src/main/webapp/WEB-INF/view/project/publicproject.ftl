@@ -32,7 +32,7 @@
     <div class="layui-col-md12">
             <div class="layui-card">
                 <div class="layui-card-header">公共项目</div>
-                <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1" class="layui-btn">我创建的项目</a>
+                <a href="${miscDomain}/aps/project/mypublic?userAccount=${userAccount}&userRole=1&page=1&limit=10" class="layui-btn">我创建的项目</a>
                 <div class="layui-card-body">
 
                     <div style="margin-bottom: 10px;">
@@ -64,14 +64,18 @@
 
 <script src="${miscDomain}/statics/layuiadmin/layui/layui.js"></script>
 <script>
-    layui.config({
-        base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
-    }).extend({
-        index: 'lib/index' //主入口模块
-    }).use(['index', 'table','form','jquery'], function(){
-        var admin = layui.admin
-                ,$ = layui.jquery
-                ,table = layui.table;
+        layui.config({
+            base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'table', 'form', 'jquery','laypage'], function () {
+            var admin = layui.admin
+                    , $ = layui.jquery
+                    , table = layui.table
+                    , laypage = layui.laypage;
+
+            var projectnameinput = $('#query-table-projectname');
+            var createuserinput = $('#query-table-createuser');
 
         //渲染表格
         table.render({
@@ -90,6 +94,12 @@
                 ,{field:'classify', width:80, title: '职业'}
                 ,{field:'wealth', width:135, title: '财富', sort: true}*/
             ]]
+                , where: {
+                    projectName: projectnameinput.val().trim()//获取到projectName元素的value属性的值
+                    , createUser: createuserinput.val().trim()
+                    , pageNum: laypage.curr
+                    , pageSize: laypage.limit
+                }
             ,page: true
         });
 
@@ -149,6 +159,8 @@
                     ,where: {
                         projectName: projectnameinput.val().trim()//获取到projectName元素的value属性的值
                         ,createUser:createuserinput.val().trim()
+                            , pageNum: laypage.curr
+                            , pageSize: laypage.limit
                     }
                 });
 

@@ -291,9 +291,9 @@
             <properties>
                 <active.profilename>dev</active.profilename>
                 <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
-                <active.name>apsadmin</active.name>
-                <active.pwd>UZagUSZ66Cvstq5OI4udfQ==</active.pwd>
-                <active.url>jdbc:mysql://10.56.23.145:3306/aps-db?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
+                <active.name>ddldata</active.name>
+                <active.pwd>s2jGEMUUrmQxN2TCSZD0Rg==</active.pwd>
+                <active.url>jdbc:mysql://106.14.224.255:3306/aps-db?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
                 <active.createPropertyFile>false</active.createPropertyFile>
                 <active.autoReload>true</active.autoReload>
             </properties>
@@ -321,7 +321,7 @@
                 <active.profilename>production</active.profilename>
                 <active.driverClass>com.mysql.jdbc.Driver</active.driverClass>
                 <active.name>ddldata</active.name>
-                <active.pwd>UZagUSZ66Cvstq5OI4udfQ==</active.pwd>
+                <active.pwd>s2jGEMUUrmQxN2TCSZD0Rg==</active.pwd>
                 <active.url>jdbc:mysql://localhost:3306/config-center?characterEncoding=utf8<![CDATA[&amp;]]>useSSL=false</active.url>
                 <active.createPropertyFile>false</active.createPropertyFile>
                 <active.autoReload>true</active.autoReload>
