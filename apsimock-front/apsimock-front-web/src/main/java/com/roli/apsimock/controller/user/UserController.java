@@ -186,11 +186,11 @@ public class UserController {
     public String getIndexPage(HttpServletRequest request,Model model) throws UnsupportedEncodingException {
 
         Cookie[] cookies = CookieUtils.getCookies(request);
-        String userAccount = URLDecoder.decode(CookieUtils.getCookieValue("_useraccount",request),"utf-8");
+        String userAccount = CookieUtils.getCookieValue("_useraccount",request);
         String userName = CookieUtils.getCookieValue("_username",request);
         if(userAccount==null||userName==null){
             return "login/login";
-        }else if(request.getSession().getAttribute(userAccount)==null){
+        }else if(request.getSession().getAttribute(URLDecoder.decode(userAccount,"utf-8"))==null){
             return "login/login";
         }
 
@@ -203,7 +203,7 @@ public class UserController {
 					 * 如果密码和session中user对象的密码一致的，认为是已登陆用户 直接转入index页面
 					 */
                 if (URLDecoder.decode(cookie.getValue(),"utf-8")
-                        .equals(((UserInfoReturn) request.getSession().getAttribute(userAccount)).getPassWordSer())) {
+                        .equals(((UserInfoReturn) request.getSession().getAttribute(URLDecoder.decode(userAccount,"utf-8"))).getPassWordSer())) {
 
                     model.addAttribute("userName",URLDecoder.decode(userName,"utf-8"));
                     model.addAttribute("userAccount",userAccount);
