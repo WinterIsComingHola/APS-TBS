@@ -70,6 +70,18 @@
         </collection>
     </resultMap>
 
+    <resultMap id="mockRunResultMap" type="com.roli.apsimock.model.api.MockRunResultInfo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="apiId" column="api_id" jdbcType="BIGINT"/>
+        <result property="urlPath" column="url_path" jdbcType="VARCHAR"/>
+        <result property="requestSource" column="request_source" jdbcType="VARCHAR"/>
+        <result property="requestMethod" column="request_method" jdbcType="VARCHAR"/>
+        <result property="requestFormat" column="request_format" jdbcType="VARCHAR"/>
+        <result property="requestResult" column="request_result" jdbcType="VARCHAR"/>
+        <result property="failedReason" column="failed_reason" jdbcType="VARCHAR"/>
+        <result property="requestTime" column="request_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
 
     <sql id="pubApiCols">
         ID,`NAME`,URL_PATH,HTTP_METHOD,PROJECT_ID,CREATE_USERID,ISACTIVE,`DESC`,CREATE_TIME,UPDATE_TIME
@@ -168,5 +180,29 @@
         from aps_api where id != #{apiid}
     </select>
 
+    <sql id="MockRunResultCols">
+        ID,API_ID,URL_PATH,REQUEST_SOURCE,REQUEST_METHOD,REQUEST_FORMAT,REQUEST_RESULT,FAILED_REASON,REQUEST_TIME
+    </sql>
+    <insert id="addMockRunResult" parameterType="com.roli.apsimock.model.api.MockRunResultInfo" useGeneratedKeys="true">
+        insert into aps_mockRunResultInfo
+        (
+          API_ID,URL_PATH,REQUEST_SOURCE,REQUEST_METHOD,REQUEST_FORMAT,REQUEST_RESULT,FAILED_REASON,REQUEST_TIME
+        )
+        values
+        (
+          #{apiId},#{urlPath},#{requestSource},#{requestMethod},#{requestFormat},
+          #{requestResult},#{failedReason},#{requestTime,jdbcType=TIMESTAMP}
+        );
+    </insert>
 
+    <select id="queryMockRunResultInfo" resultMap="mockRunResultMap">
+        select id,api_id,url_path,request_source,request_method,request_format,request_result,failed_reason,request_time
+        from aps_mockRunResultInfo
+        where url_path = #{urlpath}
+        <if test="starttime != null and endtime != null">
+            and DATE_FORMAT(request_time,"%Y-%m-%d") between #{starttime} and #{endtime}
+        </if>
+        order by request_time desc
+
+    </select>
 </mapper>

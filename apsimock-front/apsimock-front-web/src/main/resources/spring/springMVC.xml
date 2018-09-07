@@ -53,6 +53,7 @@
 	        <map>
                 <entry key="miscDomain" value="${miscDomain}" />
                 <entry key="mainDomain" value="${mainDomain}" />
+                <entry key="wsDomain" value="${wsDomain}" />
                 <!--<entry key="ecardDomain" value="${ecardDomain}" />
                 <entry key="appDomain" value="${appDomain}" />
                 <entry key="payDomain" value="${payDomain}" />

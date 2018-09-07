@@ -2,6 +2,7 @@ package com.roli.apsimock.services;
 
 import com.roli.apsimock.model.api.FieldNew;
 import com.roli.apsimock.model.api.FieldNewParamInfo;
+import com.roli.common.exception.BusinessException;
 import com.ruoli.soa.model.ResultSoaRest;
 
 import java.util.List;
@@ -41,6 +42,6 @@ public interface FieldInfoService {
     public ResultSoaRest deleteMockData(List<String> rowIds);
 
     //执行mockserver
-    public Object runMockServer(String url);
+    public Object runMockServer(String url) throws BusinessException;
 
 }

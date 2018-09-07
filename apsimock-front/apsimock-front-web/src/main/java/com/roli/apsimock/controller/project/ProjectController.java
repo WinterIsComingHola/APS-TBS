@@ -1,6 +1,8 @@
 package com.roli.apsimock.controller.project;
 
+import com.roli.apsimock.model.api.NoticeForAjax;
 import com.roli.apsimock.model.project.*;
+import com.roli.apsimock.model.user.NoticeRecord;
 import com.roli.apsimock.services.ProjectInfoService;
 import com.roli.common.exception.BusinessException;
 import com.roli.common.model.enums.ErrorsEnum;
@@ -172,5 +174,14 @@ public class ProjectController {
         return result;
 
     }
+
+    @RequestMapping(value = "/aps/notice/querynotice",method = RequestMethod.POST)
+    @ResponseBody
+    public NoticeForAjax queryNoticeByUserAccount(String userAccount,
+                                                  String page,
+                                                  String limit){
+        return projectInfoService.queryNoticeByUser(userAccount,page,limit);
+    }
+
 
 }

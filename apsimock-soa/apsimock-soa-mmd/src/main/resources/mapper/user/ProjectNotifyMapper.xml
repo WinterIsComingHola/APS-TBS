@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.roli.apsimock.dao.project.ProjectNotifyMapper">
+
+    <resultMap id="noticeRecordMap" type="com.roli.apsimock.model.user.NoticeRecord">
+        <id property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="userAccount" column="USER_ACCOUNT" jdbcType="VARCHAR"/>
+        <result property="noticeContent" column="notify_content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <insert id="addnotification">
+        insert into aps_notification (USER_ACCOUNT,NOTIFY_CONTENT,CREATE_TIME) values
+        <foreach collection="userAccounts" item="item" separator=",">
+            (#{item},#{notifyContent},now())
+        </foreach>
+    </insert>
+
+    <select id="queryNoticeRecordByuserAccount" resultMap="noticeRecordMap">
+        select `id`,`notify_content`,`create_time` from aps_notification
+        where `user_account` = #{userAccount} ORDER BY `create_time` DESC
+    </select>
+
+</mapper>

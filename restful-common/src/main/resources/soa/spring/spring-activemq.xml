@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/jms
+        http://www.springframework.org/schema/jms/spring-jms-4.0.xsd
+        http://activemq.apache.org/schema/core
+        http://activemq.apache.org/schema/core/activemq-core-5.15.0.xsd">
+
+    <context:component-scan base-package="com.ruoli.soa" />
+
+    <!--<amq:connectionFactory id="amqConnectionFactory"-->
+                           <!--brokerURL="${amq.url}"-->
+                           <!--userName="${amq.username}"-->
+                           <!--password="${amq.password}" />-->
+
+    <!-- 配置JMS连接工厂 -->
+    <bean id="amqConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="${amq.url}" />
+                <property name="userName" value="${amq.username}" />
+                <property name="password" value="${amq.password}" />
+            </bean>
+        </property>
+        <property name="maxConnections" value="100"></property>
+    </bean>
+
+
+    <!-- 配置JMS连接缓存 -->
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <constructor-arg ref="amqConnectionFactory" />
+        <property name="sessionCacheSize" value="100" />
+    </bean>
+
+    <!-- 定义消息队列（Queue） -->
+    <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <!-- 设置消息队列的名字 -->
+        <constructor-arg>
+            <value>${amq.queue.name}</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- 定义消息主题（Topic） -->
+    <bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <!-- 设置消息主题的名字 -->
+        <constructor-arg>
+            <value>${amq.topic.name}</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- 配置JMS模板（Queue），Spring提供的JMS工具类，它发送、接收消息。 -->
+    <bean id="jmsTemplateQueue" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="defaultDestination" ref="queueDestination" />
+        <property name="receiveTimeout" value="10000" />
+        <!-- true是topic，false是queue，默认是false -->
+        <property name="pubSubDomain" value="false" />
+    </bean>
+
+    <!-- 配置JMS模板（TOPic），Spring提供的JMS工具类，它发送、接收消息。 -->
+    <bean id="jmsTemplateTopic" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="defaultDestination" ref="topicDestination" />
+        <property name="receiveTimeout" value="10000" />
+        <!-- true是topic，false是queue，默认是false -->
+        <property name="pubSubDomain" value="true" />
+    </bean>
+
+
+    <!--建立消费侧的消息监听器，监听到消息后触发指定方法-->
+    <bean id="queueMessageListener" class="com.ruoli.soa.activemq.QueueMessageListener" />
+
+    <bean id="queueListenerContainer"
+          class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="destination" ref="queueDestination" />
+        <property name="messageListener" ref="queueMessageListener" />
+    </bean>
+
+
+</beans>

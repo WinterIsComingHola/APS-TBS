@@ -39,5 +39,11 @@ public interface ApiInfoMapper
     //根据apiid查询指定字段所有数据
     public List<String> queryAppointFieldByApiId(@Param("tag")String tag,@Param("apiid")Integer apiid);
 
-    //查询
+    //新增Mock运行结果
+    public void addMockRunResult(MockRunResultInfo mockRunResultInfo);
+
+    //查询Mock运行结果信息
+    public List<MockRunResultInfo> queryMockRunResultInfo(@Param("urlpath")String urlpath,
+                                                          @Param("starttime")String starttime,
+                                                          @Param("endtime")String endtime);
 }

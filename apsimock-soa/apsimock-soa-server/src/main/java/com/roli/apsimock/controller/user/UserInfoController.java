@@ -446,4 +446,5 @@ public class UserInfoController {
         }
         return resultSoaRest;
     }
+
 }

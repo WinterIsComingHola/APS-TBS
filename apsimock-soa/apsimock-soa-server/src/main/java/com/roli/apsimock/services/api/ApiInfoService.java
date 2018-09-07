@@ -2,6 +2,7 @@ package com.roli.apsimock.services.api;
 
 import com.roli.apsimock.model.api.ApiInfo;
 import com.roli.apsimock.model.api.ApiInfoOV;
+import com.roli.apsimock.model.api.MockRunResultInfo;
 import com.roli.common.exception.BusinessException;
 import com.ruoli.soa.model.ResultSoaRest;
 
@@ -28,5 +29,9 @@ public interface ApiInfoService {
     public void updateApiInfo(String tag, String field, Integer apiid) throws BusinessException;
 
     public ResultSoaRest queryAppointFieldByApiId(String tag, String field,Integer apiid) throws BusinessException;
+
+    public void addMockRunResult(MockRunResultInfo mockRunResultInfo) throws BusinessException;
+
+    public List<MockRunResultInfo> queryMockRunResultInfo(String urlpath, String starttime, String endtime) throws BusinessException;
 
 }

@@ -186,7 +186,7 @@ public class UserController {
     public String getIndexPage(HttpServletRequest request,Model model) throws UnsupportedEncodingException {
 
         Cookie[] cookies = CookieUtils.getCookies(request);
-        String userAccount = CookieUtils.getCookieValue("_useraccount",request);
+        String userAccount = URLDecoder.decode(CookieUtils.getCookieValue("_useraccount",request),"utf-8");
         String userName = CookieUtils.getCookieValue("_username",request);
         if(userAccount==null||userName==null){
             return "login/login";
@@ -331,11 +331,6 @@ public class UserController {
 
         Table table = userInfoService.queryAllUser(projectid,isInv,userAccount,userName, page, limit);
         return table;
-    }
-
-    @RequestMapping(value = "/aps/user/tonewpage",method = RequestMethod.GET)
-    public String toNewTempPage(){
-        return "common/face";
     }
 
 

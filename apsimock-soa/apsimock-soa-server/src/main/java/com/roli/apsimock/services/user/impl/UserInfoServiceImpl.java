@@ -136,9 +136,7 @@ public class UserInfoServiceImpl implements UserInfoService{
     }
 
     @Override
-    @Transactional
-    public List<UserInfo> queryAllUser(String projectid,
-                                       Integer isInv,
+    public List<UserInfo> queryAllUser(String projectid,Integer isInv,
                                        String userAccount,
                                        String userName) throws BusinessException {
         CustomAssert.isNotEmpty(projectid,ErrorsEnum.PARAM_NULL);

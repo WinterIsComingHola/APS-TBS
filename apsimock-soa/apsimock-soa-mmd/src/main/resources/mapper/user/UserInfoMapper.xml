@@ -47,7 +47,6 @@
                  ap.user_id is null
              </otherwise>
          </choose>
-
         <if test="userAccount != null || userName!=null">
             and (au.user_account = #{userAccount} or au.user_name = #{userName})
         </if>
@@ -76,6 +75,7 @@
     <select id="queryUserNameByUserid" resultType="String">
         select user_name from aps_userinfo where `id` = #{userId}
     </select>
+
     <update id="updateAccountById">
         update aps_userinfo set user_account = #{newUserAccount} where id = #{userId}
     </update>
@@ -87,4 +87,5 @@
     <select id="queryAccountCountById" resultType="java.lang.Integer">
         select count(*) from aps_userinfo where user_account = #{newUserAccount}
     </select>
+
 </mapper>

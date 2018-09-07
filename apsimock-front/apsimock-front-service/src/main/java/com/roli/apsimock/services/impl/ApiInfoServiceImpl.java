@@ -1,8 +1,11 @@
 package com.roli.apsimock.services.impl;
 
 import com.roli.apsimock.model.ApsSoaParam;
+import com.roli.apsimock.model.MockRunResultInfo;
 import com.roli.apsimock.model.api.ApiInfo;
 import com.roli.apsimock.model.api.ApiInfoOV;
+import com.roli.apsimock.model.api.MockRunResultDetail;
+import com.roli.apsimock.model.api.MockRunResultForAjax;
 import com.roli.apsimock.services.ApiInfoService;
 import com.roli.common.exception.BusinessException;
 import com.roli.common.model.enums.ErrorsEnum;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,5 +102,51 @@ public class ApiInfoServiceImpl implements ApiInfoService{
 
     }
 
+    @Override
+    public void addMockRunResult(MockRunResultInfo mockRunResultInfo)
+    {
+        ApsSoaParam apsSoaParam = new ApsSoaParam();
+        apsSoaParam.setBusinessParam(JacksonUtils.toJson(mockRunResultInfo));
+        soaRestScheduler.sendPost(SOAPATH+"api/mockRunResult.action",apsSoaParam);
+    }
 
+    @Override
+    public MockRunResultForAjax queryMockRunResult(String urlpath, String pageNum, String pageSize, String starttime, String endtime)
+    {
+        ApsSoaParam apsSoaParam = new ApsSoaParam();
+        MockRunResultForAjax mockRunResultForAjax = new MockRunResultForAjax();
+        List<MockRunResultDetail> list = new ArrayList<>();
+
+        Map<String, String> map = new HashMap<>();
+        map.put("urlpath",urlpath);
+        map.put("pageNum",pageNum);
+        map.put("pageSize",pageSize);
+        map.put("starttime",starttime);
+        map.put("endtime",endtime);
+
+        apsSoaParam.setBusinessParam(JacksonUtils.toJson(map));
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"api/queryMockRunResultInfo.action",apsSoaParam);
+
+        List<Map<String,Object>> mockRunResultInfos = (List<Map<String,Object>>)resultSoaRest.getAttribute("mockRunResultInfos");
+        for(Map<String,Object> mockRunresultInfo:mockRunResultInfos){
+            MockRunResultInfo mockRunResultInfo = JacksonUtils.map2obj(mockRunresultInfo,MockRunResultInfo.class);
+
+            MockRunResultDetail mockRunResultDetail = new MockRunResultDetail();
+            mockRunResultDetail.setFormat(mockRunResultInfo.getRequestFormat());
+            mockRunResultDetail.setMethod(mockRunResultInfo.getRequestMethod());
+            mockRunResultDetail.setReason(mockRunResultInfo.getFailedReason());
+            mockRunResultDetail.setSource(mockRunResultInfo.getRequestSource());
+            mockRunResultDetail.setTime(mockRunResultInfo.getRequestTime());
+            mockRunResultDetail.setResult(mockRunResultInfo.getRequestResult());
+            mockRunResultDetail.setPath(mockRunResultInfo.getUrlPath());
+            list.add(mockRunResultDetail);
+        }
+
+        mockRunResultForAjax.setCode(0);
+        mockRunResultForAjax.setMsg("");
+        mockRunResultForAjax.setCount((int)resultSoaRest.getAttribute("total"));
+        mockRunResultForAjax.setData(list);
+
+        return mockRunResultForAjax;
+    }
 }

@@ -137,7 +137,7 @@
                 ,{field:'wealth', width:135, title: '财富', sort: true}*/
             ]]
             ,where:{
-                userAccount:${userAccount},
+                userAccount:"${userAccount}",
                 userRole:0
                 ,page:laypage.curr
                 ,limit:laypage.limit

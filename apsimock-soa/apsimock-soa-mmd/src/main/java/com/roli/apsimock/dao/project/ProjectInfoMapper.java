@@ -49,4 +49,7 @@ public interface ProjectInfoMapper {
     //删除项目和人员的关联数据
     public void deleteRelationProAndUser(@Param("projectId") Integer projectid);
 
+    //根据projectid查询项目所属人的account
+    public String queryUserAccountByProjectId(@Param("projectId") Integer projectid);
+
 }

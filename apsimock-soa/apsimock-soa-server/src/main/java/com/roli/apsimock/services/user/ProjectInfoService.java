@@ -3,7 +3,6 @@ package com.roli.apsimock.services.user;
 import com.roli.apsimock.model.project.ProjectInfo;
 import com.roli.apsimock.model.project.ProjectInfoOOV;
 import com.roli.apsimock.model.project.ProjectInfoOV;
-import com.roli.apsimock.model.user.UserInfo;
 import com.roli.common.exception.BusinessException;
 import com.ruoli.soa.model.Datagrid;
 
@@ -33,9 +32,13 @@ public interface ProjectInfoService {
     public List<String> queryUserByProjectName(String projectName)throws Exception;
 
     //查询所有公共项目
-    public List<ProjectInfoOOV> queryPublicProject(String projectName,String createUser);
+    // public List<ProjectInfoOOV> queryPublicProject(String projectName,String createUser);
+    public List<ProjectInfoOOV> queryPublicProject(String projectName, String createUser);
 
     //删除当前项目
     public void deleteProject(Integer projectid) throws BusinessException;
+
+    //根据项目id查询所属用户的账号
+    public String queryUserAccountByProjectId(Integer projectId) throws BusinessException;
 
 }

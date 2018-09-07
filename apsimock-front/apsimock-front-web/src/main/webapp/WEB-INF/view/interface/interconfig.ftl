@@ -30,7 +30,6 @@
 </head>
 <body>
 
-
 <!--   <div class="layui-card layadmin-header">
     <div class="layui-breadcrumb" lay-filter="breadcrumb">
       <a lay-href="">主页</a>
@@ -124,7 +123,8 @@
                                                         style="color:red">*</i>&nbsp;接口名称：</label>
                                                 <div class="layui-input-block">
                                                     <input type="text" name="intername" lay-verify="required"
-                                                           autocomplete="off" placeholder="请输入接口名称" class="layui-input focusoutin"
+                                                           autocomplete="off" placeholder="请输入接口名称"
+                                                           class="layui-input focusoutin"
                                                            value="${apiName}">
                                                 </div>
                                             </div>
@@ -148,7 +148,8 @@
                                                         style="color:red">*</i>&nbsp;接口路径：</label>
                                                 <div class="layui-input-block">
                                                     <input type="text" name="interpath" lay-verify="required"
-                                                           autocomplete="off" placeholder="路径必须以/开头" class="layui-input focusoutin"
+                                                           autocomplete="off" placeholder="路径必须以/开头"
+                                                           class="layui-input focusoutin"
                                                            value="${apiPath}">
                                                 </div>
                                             </div>
@@ -194,7 +195,8 @@
                                                                class="layui-input layui-disabled input-value" disabled>
                                                     </div>
                                                     <div class="layui-input-inline">
-                                                        <select id="${rootId}" name="rspparamneccroot" lay-filter="rspobj">
+                                                        <select id="${rootId}" name="rspparamneccroot"
+                                                                lay-filter="rspobj">
                                                             <option value="object">object</option>
                                                             <option value="array">array</option>
                                                         </select>
@@ -277,7 +279,8 @@
                                             <div>
                                                 <hr class="layui-bg-green">
                                                 <div class="layui-form-item">
-                                                    <button class="layui-btn layui-disabled" lay-submit="" lay-filter="intersub" disabled>提交保存
+                                                    <button class="layui-btn layui-disabled" lay-submit=""
+                                                            lay-filter="intersub" disabled>提交保存
                                                     </button>
                                                 </div>
                                             </div>
@@ -319,9 +322,16 @@
                                                 </div>
                                                 <div class="layui-input-inline" style="width: 80px;">
                                                     <button class="layui-btn layui-btn-radius" type="button"
-                                                            id="mocksubmit" data-type="mockexcu" style="float:right;">运行
+                                                            id="mocksubmit" data-type="mockexcu" style="float:left;">运行
                                                     </button>
                                                 </div>
+                                                <div class="layui-input-inline" style="width: 80px;">
+                                                    <button class="layui-btn layui-btn-radius" type="button"
+                                                            id="historysubmit" data-type="mockhistory"
+                                                            style="float:right;">查看记录
+                                                    </button>
+                                                </div>
+
                                             </div>
                                             <hr class="layui-bg-green">
 
@@ -352,6 +362,24 @@
     </div>
 </div>
 
+<!--用于显示mock运行结果统计的弹层-->
+<div hidden id="mockrunresult">
+    <div style="margin-bottom: 10px;">
+        <label class="layui-form-label" style="margin-left: 150px">开始时间：</label>
+        <input type="text" class="layui-input" name="starttime" id="query-table-starttime" autocomplete="off"
+               readonly="readonly"
+               placeholder="请选择开始日期" value="" style="width: 200px;float:left;border-style:solid; border-color:#DDDDD;">
+        <label class="layui-form-label">结束时间：</label>
+        <input type="text" class="layui-input" name="endtime" id="query-table-endtime" autocomplete="off"
+               readonly="readonly"
+               placeholder="请选择结束日期" value="" style="width: 200px;float:left;border-style:solid;border-color:#DDDDD;">
+        <!--data-type属性为H5新增，可以在$中使用data(type)进行值的获取-->
+        <button id="querymockresult" class="layui-btn" data-type="mockqueryreload"
+                style="float:left; margin-left: 50px;">查询
+        </button>
+    </div>
+    <table class="layui-hide" id="mock-result-table" lay-filter="mock-result-event"></table>
+</div>
 
 <script src="${miscDomain}/statics/layuiadmin/layui/layui.js"></script>
 <script src="${miscDomain}/statics/layuiadmin/aps/jsonhander.js"></script>
@@ -360,16 +388,53 @@
         base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
     }).extend({
         index: 'lib/index' //主入口模块
-    }).use(['index', 'table', 'layer', 'jquery', 'form', 'element'], function () {
+    }).use(['index', 'table', 'layer', 'jquery', 'form', 'element', 'laydate'], function () {
         var layer = layui.layer
                 , $ = layui.jquery
                 , table = layui.table
                 , form = layui.form
-                , element = layui.element;
+                , element = layui.element
+                , laydate = layui.laydate;
 
         //var userList = [];//定义空数组存储用户的选择数据
         var mockResponseType = null;
         var inputOldVal = null;
+        var apiid = $('#root-item').data('apiid');
+
+        //时间控件
+        var start = laydate.render({
+            elem: '#query-table-starttime'
+            , calendar: true
+            , theme: '#2F4056'
+            , done: function (value, date) {
+                end.config.min = {
+                    year: date.year,
+                    month: date.month - 1,
+                    date: date.date
+                };
+            }
+        });
+        var end = laydate.render({
+            elem: '#query-table-endtime'
+            , calendar: true
+            , theme: '#2F4056'
+            , done: function (value, date) {
+                if (value != null && value != "") {
+                    start.config.max = {
+                        year: date.year,
+                        month: date.month - 1,
+                        date: date.date
+                    };
+                } else {
+                    start.config.max = {
+                        year: new Date().getUTCFullYear(),
+                        month: new Date().getUTCMonth(),
+                        date: new Date().getUTCDate()
+                    };
+                }
+            }
+
+        });
 
         //渲染接口表格
         table.init('basicinfo', {
@@ -378,14 +443,14 @@
 
 
         //监听Tab页面的点击
-        element.on('tab(docTabBrief)',function (data) {
+        element.on('tab(docTabBrief)', function (data) {
             //console.log(this);
             console.log(data.index);
-            if(data.index == 0){
+            if (data.index == 0) {
 
-            }else if(data.index == 2){
+            } else if (data.index == 2) {
                 var newValPath = $("input[name='interpath']").val();
-                $("#mockurl").val("${miscDomain}/mockserver"+newValPath);
+                $("#mockurl").val("${miscDomain}/mockserver" + newValPath);
             }
         });
 
@@ -652,7 +717,7 @@
         });
 
         //监听提交
-        form.on('submit(intersub)', function(data){
+        form.on('submit(intersub)', function (data) {
             layer.msg('提交数据成功');
 
             /*        console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
@@ -766,7 +831,7 @@
             }
 
             //获取root节点的rootType
-            ,getRootNodeType:function (apiId) {
+            , getRootNodeType: function (apiId) {
 
                 var rootType = 0;
                 $.ajax(
@@ -775,7 +840,7 @@
                             , type: "post"
                             , dataType: "json"
                             , async: false
-                            , data: {apiId:apiId}
+                            , data: {apiId: apiId}
                             , success: function (resp) {
 
                                 rootType = resp.data.rootType;
@@ -1087,11 +1152,12 @@
                 var urlResult = null;
                 var AcceptContext = "text/html";
                 var datatype = null;
+                var apiid = $("#root-item").data("apiid");
                 if (respType == 3) {
-                    urlResult = "${mainDomain}mockserver" + url + ".action?callback=" + jsonpName;
+                    urlResult = "${mainDomain}mockserver" + url + ".action?callback=" + jsonpName + "&apiid=" + apiid;
                     datatype = "jsonp";
                 } else {
-                    urlResult = "${mainDomain}mockserver" + url + ".action"
+                    urlResult = "${mainDomain}mockserver" + url + ".action?apiid=" + apiid;
                 }
 
                 if (respType == 1) {
@@ -1151,8 +1217,65 @@
                 );
             }
 
+            , mockqueryreload: function () {
+                var urlpath = $("input[name='interpath']").val();
+                var starttime = $('#query-table-starttime').val();
+                var endtime = $('#query-table-endtime').val();
+                var currenttime = new Date();
+                var currentyear = currenttime.getUTCFullYear(),
+                        currentmonth = currenttime.getUTCMonth() + 1,
+                        currentday = currenttime.getUTCDate();
+
+                if (currentmonth < 10) {
+                    currentmonth = "0" + currentmonth;
+                }
+                if (currentday < 10) {
+                    currentday = "0" + currentday;
+                }
+
+                var time = currentyear + "-" + currentmonth + "-" + currentday;
+
+                if (starttime != "" && endtime == "") {
+                    endtime = time;
+                }
+
+                if (starttime == "" && endtime != "") {
+                    layer.msg("开始时间不能为空");
+                    return;
+                }
+                if(starttime == "" && endtime == ""){
+                    starttime = null;
+                    endtime = null;
+                }
+
+                if (Date.parse(starttime) > Date.parse(endtime)) {
+                    layer.msg("开始时间不能大于结束时间");
+                    $("input#query-table-starttime").val("");
+                    return;
+                }
+                //执行表格重载
+                table.reload('mock-result-table', {
+                    url: '${mainDomain}mockrun/getMockRunResult.action'
+                    , method: 'get'
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        urlpath: urlpath
+                        , starttime: starttime
+                        , endtime: endtime
+                    }
+                });
+            }
         };
 
+        //执行mock结果统计时间查询按钮点击事件
+        $('#querymockresult').on('click', function () {
+            //获取查询按钮元素中的data-type属性的值
+            var type = $(this).data('type');
+            //判断active对象是否存在type类型的属性，如果存在，则执行对应函数，否则不做任何事情
+            active[type] ? active[type].call(this) : '';
+        });
 
         //执行新增mock字段
         $('#root-item').on('click', '.newmockparamc', function () {
@@ -1202,12 +1325,12 @@
             var tag = "3";
             var field = null;
             var apiid = $('#root-item').data('apiid');
-            if(data.value == "GET"){
+            if (data.value == "GET") {
                 field = "1";
-            }else if(data.value == "POST"){
+            } else if (data.value == "POST") {
                 field = "2";
             }
-            <#--location.href = '${mainDomain}aps/interface/updateapiinfo?tag='+tag+'&field='+field+'&apiid='+apiid;-->
+        <#--location.href = '${mainDomain}aps/interface/updateapiinfo?tag='+tag+'&field='+field+'&apiid='+apiid;-->
             $.ajax({
                 type: "post",
                 url: "${mainDomain}aps/interface/updateapiinfo",
@@ -1216,20 +1339,20 @@
                     "tag": tag,
                     "apiid": apiid
                 },
-                error:function () {
+                error: function () {
                     layer.msg('后台处理异常，请重试');
                 }
             });
         });
         //监听switch进行更新
-        form.on('switch(encrypt)', function(data){
+        form.on('switch(encrypt)', function (data) {
             console.log(data.elem.checked); //开关是否开启，true或者false
             var tag = "4";
             var field = null;
             var apiid = $('#root-item').data('apiid');
-            if(data.elem.checked==true){
+            if (data.elem.checked == true) {
                 field = "1";
-            }else if(data.elem.checked==false){
+            } else if (data.elem.checked == false) {
                 field = "0";
             }
         <#--location.href = '${mainDomain}aps/interface/updateapiinfo?tag='+tag+'&field='+field+'&apiid='+apiid;-->
@@ -1241,31 +1364,30 @@
                     "tag": tag,
                     "apiid": apiid
                 },
-                error:function () {
+                error: function () {
                     layer.msg('后台处理异常，请重试');
                 }
             });
         });
 
         // 获得焦点事件
-        $("#apiInfo").on("focus", ".focusoutin",function () {
-            if($(this).prop("name") == "intername"){
+        $("#apiInfo").on("focus", ".focusoutin", function () {
+            if ($(this).prop("name") == "intername") {
                 inputOldVal = $("input[name='intername']").val();
-            }else if($(this).prop("name") == "interpath"){
+            } else if ($(this).prop("name") == "interpath") {
                 inputOldVal = $("input[name='interpath']").val();
             }
         });
         //MOCK配置 接口名称更新
-
-        $("#apiInfo").on("focusout", ".focusoutin",function () {
+        $("#apiInfo").on("focusout", ".focusoutin", function () {
             var field = $(this).val();
             var tag = null;
             var reg = /^\//;
-            if($(this).prop("name") == "intername"){
+            if ($(this).prop("name") == "intername") {
                 tag = "1";
-            }else if($(this).prop("name") == "interpath"){
+            } else if ($(this).prop("name") == "interpath") {
                 tag = "2";
-                if((!reg.test(field))) {
+                if ((!reg.test(field))) {
                     layer.msg('路径需要以/开头');
                     setTimeout(function () {
                         $("input[name='interpath']").val(inputOldVal);
@@ -1275,12 +1397,12 @@
             }
             var apiid = $('#root-item').data('apiid');
 
-            if(field.length == 0){
-                if($(this).prop("name") == "intername"){
+            if (field.length == 0) {
+                if ($(this).prop("name") == "intername") {
                     layer.msg("接口名称不能为空");
                     setTimeout(function () {
                         $("input[name='intername']").val(inputOldVal);
-                    },1000);
+                    }, 1000);
                     return;
                 }
             }
@@ -1295,20 +1417,20 @@
                 },
                 success: function (result) {
                     var obj = JSON.parse(result);
-                    if(obj.state==404){
+                    if (obj.state == 404) {
                         layer.msg(obj.message);
                         setTimeout(function () {
                             $("input[name='intername']").val(inputOldVal);
-                        },1000);
+                        }, 1000);
 
-                    }else if(obj.state==405){
+                    } else if (obj.state == 405) {
                         layer.msg(obj.message);
                         setTimeout(function () {
                             $("input[name='interpath']").val(inputOldVal);
                         }, 1000);
                     }
                 },
-                error:function () {
+                error: function () {
                     layer.msg('后台处理异常，请重试');
                 }
 
@@ -1340,6 +1462,52 @@
             active[type] ? active[type].call(this, url, respType, jsonpName) : '';
         });
 
+        //监听mock查看记录按钮
+        $('#historysubmit').on('click', function () {
+            var urlpath = $("input[name='interpath']").val();
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-molv',
+                // area: ['1135px', '550px'], //宽高
+                area: ['100%', '100%'], //宽高
+                title: ["MOCK运行结果统计", 'font-size:16px;margin-top: 5px'],
+                content: $("#mockrunresult"),
+                btnAlign: 'c',
+                scrollbar: false,
+                move: false,
+                success: function () {//渲染mock运行结果表格
+                    table.render({
+                        elem: '#mock-result-table'
+                        , url: '${mainDomain}mockrun/getMockRunResult.action'
+                        , method: 'get'
+                        , where: {
+                            urlpath:urlpath
+                            ,starttime:null
+                            ,endtime:null
+                        }
+                        , size: 'sm' //小尺寸的表格
+                        , height: 400
+                        // , width: 1050
+                        ,width: 1100
+                        , type: 'date'
+                        , cols: [[
+                            {field: 'zizeng', title: '序号', type: 'numbers', align: 'center', width: 100}
+                            , {field: 'source', title: '请求来源', align: 'center', width: 100}
+                            , {field: 'method', title: '请求方法', align: 'center', width: 100}
+                            , {field: 'path', title: '请求路径', align: 'center', width: 100}
+                            , {field: 'format', title: '消息体格式', align: 'center', width: 100}
+                            , {field: 'result', title: '请求结果', align: 'center', width: 100}
+                            , {field: 'reason', title: '失败原因', align: 'center'}
+                            , {field: 'time', title: '请求时间', align: 'center', width: 160, sort: true}
+                        ]]
+                        , page: true
+                    });
+                }
+
+
+            });
+        });
+
         //监听输入框失去焦点事件，用于实时更新输入框的编辑
         $('#root-item').on('focusout', '.inputfocus', function () {
             var type = $(this).data('type');
@@ -1364,9 +1532,9 @@
 
             //显示root节点的下拉菜单
             var apiid = $('#root-item').data('apiid');
-            if(active.getRootNodeType.call(this,apiid) == 5){
+            if (active.getRootNodeType.call(this, apiid) == 5) {
                 $("select[name='rspparamneccroot'] > option[value='object']").prop("selected", true);
-            }else if(active.getRootNodeType.call(this,apiid) == 6){
+            } else if (active.getRootNodeType.call(this, apiid) == 6) {
                 $("select[name='rspparamneccroot'] > option[value='array']").prop("selected", true);
             }
 
@@ -1379,6 +1547,9 @@
 
                 switch ($(this).data("optype")) {
                     case 1:
+                        /*
+                        * 如果给定一个表示 DOM 元素集合的 jQuery 对象，.find() 方法允许我们在 DOM 树中搜索这些元素的后代，并用匹配元素来构造一个新的 jQuery 对象。.find() 与 .children() 方法类似，不同的是后者仅沿着 DOM 树向下遍历单一层级
+                        * */
                         $(this).find("option[value='string']").prop("selected", true);
 
                         //新增子对象按钮禁用

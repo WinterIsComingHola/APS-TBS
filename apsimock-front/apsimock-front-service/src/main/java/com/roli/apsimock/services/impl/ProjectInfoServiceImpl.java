@@ -1,7 +1,10 @@
 package com.roli.apsimock.services.impl;
 
 import com.roli.apsimock.model.ApsSoaParam;
+import com.roli.apsimock.model.api.NoticeForAjax;
+import com.roli.apsimock.model.api.NoticeForAjaxDetail;
 import com.roli.apsimock.model.project.*;
+import com.roli.apsimock.model.user.NoticeRecord;
 import com.roli.apsimock.model.user.UserInfo;
 import com.roli.apsimock.services.ProjectInfoService;
 import com.roli.common.exception.BusinessException;
@@ -9,7 +12,10 @@ import com.roli.common.model.enums.ErrorsEnum;
 import com.roli.common.utils.json.JacksonUtils;
 import com.ruoli.soa.api.SoaRestScheduler;
 import com.ruoli.soa.model.ResultSoaRest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,11 +31,16 @@ import java.util.Map;
 @Service
 public class ProjectInfoServiceImpl implements ProjectInfoService{
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectInfoServiceImpl.class);
+
     @Value("${soa.path}")
     public String SOAPATH;
 
     @Resource
     SoaRestScheduler soaRestScheduler;
+
+    @Resource(name = "jmsTemplateQueue")
+    JmsTemplate jmsTemplate;
 
     @Override
     public ProjectForAjax queryPublicProjectInfos(String projectName,String createUser,String pageNum, String pageSize){
@@ -90,6 +101,33 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
             BusinessException.throwMessage(ErrorsEnum.RELATION_DUPLICATE);
         }
 
+
+        //下面的代码开始执行MQ消息的构造和发送
+        //获取当前公共projectid的所属的用户的Account信息
+        ApsSoaParam soaParam2 = new ApsSoaParam();
+        soaParam2.setBusinessParam(String.valueOf(projectid));
+        ResultSoaRest resultSoaRest2 = soaRestScheduler.sendPost(SOAPATH+"project/queryuseraccountbyprojectid.action",soaParam2);
+        String ownerUserAccount = (String)resultSoaRest2.getAttribute("userAccount");
+        if(ownerUserAccount == null){
+            BusinessException.throwMessage(ErrorsEnum.PARAM_NULL);
+        }
+
+        //构造发生到MQ的数据，主要是发送当前projectId所属的用户信息
+        Map<String,Object> mapMessage = new HashMap<>();
+        List<String> ownerUserList = new ArrayList<>();
+        ownerUserList.add(ownerUserAccount);
+
+        mapMessage.put("tag","projectMessage");
+        mapMessage.put("ownUsers",ownerUserList);
+        mapMessage.put("message","通知：有用户加入您创建的项目，项目id是"+projectid);
+        //向MQ消息中间件进行推送
+        logger.info("-------------------------开始进行MQ消息推送-------------------------");
+        jmsTemplate.convertAndSend(mapMessage);
+        logger.info("-------------------------MQ消息推送执行完毕-------------------------");
+
+
+
+        //返回到正常的业务
         return resultSoaRest;
     }
 
@@ -225,4 +263,52 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
         return resultSoaRest;
     }
 
+    @Override
+    public NoticeForAjax queryNoticeByUser(String userAccount,
+                                           String page,
+                                           String limit) {
+        ApsSoaParam soaParam = new ApsSoaParam();
+        Map<String ,String> paramMap = new HashMap<>();
+        paramMap.put("userAccount",userAccount);
+        paramMap.put("pageNum",page);
+        paramMap.put("pageSize",limit);
+        soaParam.setBusinessParam(JacksonUtils.toJson(paramMap));
+        //调用restful服务
+        ResultSoaRest resultSoaRest = soaRestScheduler.sendPost(SOAPATH+"project/querynoticebyuser.action",soaParam);
+        NoticeForAjax table = new NoticeForAjax();
+        List<NoticeForAjaxDetail> mapListTable = new ArrayList<>();
+
+        if(resultSoaRest.getState()==601){
+            table.setCode(-1);
+            table.setCount(0);
+            table.setMsg(resultSoaRest.getMessage());
+            return table;
+        }
+
+
+        List<Map> noticeRecords = (List<Map>)
+                resultSoaRest.getAttribute("noticeRecords");
+
+
+        for(Map<String,Object> noticeRecordMap:noticeRecords){
+
+            NoticeRecord noticeRecord = JacksonUtils.map2obj(noticeRecordMap,NoticeRecord.class);
+
+
+            NoticeForAjaxDetail noticeForAjaxDetail = new NoticeForAjaxDetail();
+            noticeForAjaxDetail.setZizeng(noticeRecord.getId());
+            noticeForAjaxDetail.setInfo(noticeRecord.getNoticeContent());
+            noticeForAjaxDetail.setTime(noticeRecord.getCreateTime());
+
+            mapListTable.add(noticeForAjaxDetail);
+        }
+
+        table.setCode(0);
+        table.setCount((Integer) resultSoaRest.getAttribute("total"));
+        table.setMsg("");
+        table.setData(mapListTable);
+
+        return table;
+
+    }
 }

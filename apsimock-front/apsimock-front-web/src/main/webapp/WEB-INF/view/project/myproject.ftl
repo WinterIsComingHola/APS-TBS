@@ -189,8 +189,6 @@
         var userUnique = [];//去重后的数组
         var currentProjectId = null;
 
-        console.log(laypage.curr);
-        console.log(laypage.limit);
         //渲染项目表格
         table.render({
             elem: '#my-project-table'
@@ -208,7 +206,7 @@
                 ,{field:'wealth', width:135, title: '财富', sort: true}*/
             ]]
             ,where:{
-                userAccount:${userAccount}
+                userAccount:"${userAccount}"
                 ,userRole:1
                 ,page:laypage.curr
                 ,limit:laypage.limit
@@ -490,7 +488,7 @@
                                 ,privacy:ispub
                                 ,tag:prtag
                                 ,desc:prdesc
-                                ,userAccount:${userAccount}
+                                ,userAccount:"${userAccount}"
                             };
 
                             //校验通过后，向后台新增项目数据
@@ -527,7 +525,7 @@
                                                     curr: 1 //重新从第 1 页开始
                                                 }
                                                 ,where: {
-                                                    userAccount:${userAccount}
+                                                    userAccount:"${userAccount}"
                                                     ,userRole:"1"
                                                 }
                                             });
@@ -580,7 +578,7 @@
                                 ,privacy:ispub
                                 ,tag:prtag
                                 ,desc:prdesc
-                                ,userAccount:${userAccount}
+                                ,userAccount:"${userAccount}"
                             };
 
                             //校验通过后，向后台新增项目数据

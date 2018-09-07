@@ -1,8 +1,10 @@
 package com.roli.apsimock.services;
 
+import com.roli.apsimock.model.api.NoticeForAjax;
 import com.roli.apsimock.model.project.ProjectForAjax;
 import com.roli.apsimock.model.project.ProjectInfo;
 import com.roli.apsimock.model.project.ProjectInfoOV;
+import com.roli.apsimock.model.project.Table;
 import com.roli.common.exception.BusinessException;
 import com.ruoli.soa.model.ResultSoaRest;
 
@@ -32,5 +34,10 @@ public interface ProjectInfoService {
 
     //删除项目
     public ResultSoaRest deleteProject(Integer projectid) throws BusinessException;
+
+    //查询通知记录
+    public NoticeForAjax queryNoticeByUser(String userAccount,
+                                           String page,
+                                           String limit);
 
 }

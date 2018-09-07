@@ -75,6 +75,20 @@
             <version>${aspectjweaver.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-spring</artifactId>
+            <version>${xbean-spring}</version>
+        </dependency>
+
+        <!--支持spring-websocket-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${freemarker.version}</version>

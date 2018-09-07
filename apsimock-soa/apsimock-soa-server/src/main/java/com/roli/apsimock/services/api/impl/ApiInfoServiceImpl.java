@@ -7,6 +7,7 @@ import com.roli.apsimock.dao.api.FieldNewInfoMapper;
 import com.roli.apsimock.model.api.ApiInfo;
 import com.roli.apsimock.model.api.ApiInfoOV;
 import com.roli.apsimock.model.api.FieldInfo;
+import com.roli.apsimock.model.api.MockRunResultInfo;
 import com.roli.apsimock.services.api.ApiInfoService;
 import com.roli.common.exception.BusinessException;
 import com.roli.common.exception.CustomAssert;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -290,5 +292,27 @@ public class ApiInfoServiceImpl implements ApiInfoService{
             }
         }
         return resultSoaRest;
+    }
+
+    @Override
+    public void addMockRunResult(MockRunResultInfo mockRunResultInfo) throws BusinessException
+    {
+        CustomAssert.isNotNull(mockRunResultInfo,ErrorsEnum.OBJECT_NULL);
+        CustomAssert.isNotEmpty(mockRunResultInfo.getRequestSource(),ErrorsEnum.FIELDVALUE_NULL);
+        CustomAssert.isNotEmpty(mockRunResultInfo.getRequestMethod(),ErrorsEnum.FIELDVALUE_NULL);
+        CustomAssert.isNotEmpty(mockRunResultInfo.getRequestFormat(),ErrorsEnum.FIELDVALUE_NULL);
+        CustomAssert.isNotEmpty(mockRunResultInfo.getRequestResult(),ErrorsEnum.FIELDVALUE_NULL);
+        CustomAssert.isNotEmpty(mockRunResultInfo.getUrlPath(),ErrorsEnum.FIELDVALUE_NULL);
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        mockRunResultInfo.setRequestTime(localDateTime);
+        apiInfoMapper.addMockRunResult(mockRunResultInfo);
+    }
+
+    @Override
+    public List<MockRunResultInfo> queryMockRunResultInfo(String urlpath, String starttime, String endtime) throws BusinessException
+    {
+        CustomAssert.isNotEmpty(urlpath,ErrorsEnum.API_NOTFIND);
+        return apiInfoMapper.queryMockRunResultInfo(urlpath,starttime,endtime);
     }
 }

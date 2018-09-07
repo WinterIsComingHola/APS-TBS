@@ -246,7 +246,7 @@
                                 ,httpMethod:method
                                 ,desc:desc
                                 ,projectId:${projectid}
-                                ,userAccount:${userAccount}
+                                ,userAccount:"${userAccount}"
                             };
 
                             //校验通过后，向后台新增项目数据

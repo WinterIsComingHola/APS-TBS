@@ -145,7 +145,6 @@
     </select>
 
     <select id="queryPublicProject" resultMap="projectInfoOOVMap">
-
         select ap.*,au.user_name from aps_projectinfo ap , aps_userinfo au
         where ap.privacy = 1 and ap.create_userid = au.id
         <if test="projectName!=null and createUser!=null">
@@ -168,5 +167,10 @@
     <delete id="deleteRelationProAndUser">
         delete  from aps_user_project_relation where project_id = #{projectId}
     </delete>
+
+    <select id="queryUserAccountByProjectId" resultType="string">
+        select au.user_account from aps_projectinfo ap,aps_userinfo au
+        where ap.create_userid = au.id and ap.id = #{projectId}
+    </select>
 
 </mapper>

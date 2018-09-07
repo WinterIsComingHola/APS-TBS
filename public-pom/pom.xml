@@ -38,6 +38,7 @@
         <!-- spring -->
         <org.springframework.version>4.3.10.RELEASE</org.springframework.version>
         <com.springsource.org.aspectj.weaver.version>1.7.2.RELEASE</com.springsource.org.aspectj.weaver.version>
+        <xbean-spring>4.2</xbean-spring>
 
         <!-- mybatis -->
         <org.mybatis.version>3.4.4</org.mybatis.version>
@@ -50,12 +51,18 @@
         <!-- http -->
         <httpasyncclient.version>4.1.2</httpasyncclient.version>
         <httpmime.version>4.5.2</httpmime.version>
+        <commons-httpclient.version>3.1</commons-httpclient.version>
 
         <!-- view -->
         <sitemesh.version>2.4.2</sitemesh.version>
         <freemarker.version>2.3.23</freemarker.version>
         <jstl.verson>1.2.1</jstl.verson>
         <taglib.version>1.2</taglib.version>
+
+        <!-- ActiveMQ -->
+        <activemq.core>5.7.0</activemq.core>
+        <activemq.pool>5.15.0</activemq.pool>
+
         <!-- DB、cache、事务 -->
         <mysql.version>5.1.44</mysql.version>
         <com.springsource.org.logicalcobwebs.proxool.version>0.9.1</com.springsource.org.logicalcobwebs.proxool.version>
@@ -81,7 +88,6 @@
 
 
         <!-- common -->
-        <commons-httpclient.version>3.1</commons-httpclient.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>

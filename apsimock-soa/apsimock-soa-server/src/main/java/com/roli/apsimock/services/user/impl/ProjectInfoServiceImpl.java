@@ -2,7 +2,6 @@ package com.roli.apsimock.services.user.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.roli.apsimock.dao.project.ProjectInfoMapper;
-import com.roli.apsimock.dao.user.UserInfoMapper;
 import com.roli.apsimock.model.project.ProUserRel;
 import com.roli.apsimock.model.project.ProjectInfo;
 import com.roli.apsimock.model.project.ProjectInfoOOV;
@@ -27,23 +26,26 @@ import java.util.List;
  * @date 2018/3/16 下午4:54
  */
 @Service
-public class ProjectInfoServiceImpl implements ProjectInfoService{
+public class ProjectInfoServiceImpl implements ProjectInfoService
+{
 
     @Resource
     ProjectInfoMapper projectInfoMapper;
 
     @Override
     @Transactional
-    public void addProject(ProjectInfoOV projectInfoov) throws BusinessException {
-        CustomAssert.isNotNull(projectInfoov,ErrorsEnum.OBJECT_NULL);
-        CustomAssert.isNotEmpty(projectInfoov.getProjectName(),ErrorsEnum.PROJECTNAME_NULL);
-        CustomAssert.isNotEmpty(projectInfoov.getUserAccount(),ErrorsEnum.ACCOUNT_NULL);
-        CustomAssert.isNotNull(projectInfoov.getPrivacy(),ErrorsEnum.PROJECTPRIVACY_NULL);
-        CustomAssert.isNotNull(projectInfoov.getIsMaster(),ErrorsEnum.ISCREATE_ERROR);
+    public void addProject(ProjectInfoOV projectInfoov) throws BusinessException
+    {
+        CustomAssert.isNotNull(projectInfoov, ErrorsEnum.OBJECT_NULL);
+        CustomAssert.isNotEmpty(projectInfoov.getProjectName(), ErrorsEnum.PROJECTNAME_NULL);
+        CustomAssert.isNotEmpty(projectInfoov.getUserAccount(), ErrorsEnum.ACCOUNT_NULL);
+        CustomAssert.isNotNull(projectInfoov.getPrivacy(), ErrorsEnum.PROJECTPRIVACY_NULL);
+        CustomAssert.isNotNull(projectInfoov.getIsMaster(), ErrorsEnum.ISCREATE_ERROR);
 
 
         ProjectInfo projectFromDB = projectInfoMapper.queryProjectByName(projectInfoov.getProjectName());
-        if(projectFromDB != null){
+        if (projectFromDB != null)
+        {
             BusinessException.throwMessage(ErrorsEnum.PROJECT_DUPLICATE);
         }
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -51,7 +53,8 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
         //新增项目
         projectInfoMapper.addProject(projectInfoov);
         //新增关系
-        if(projectInfoov.getIsMaster()!=1){
+        if (projectInfoov.getIsMaster() != 1)
+        {
             BusinessException.throwMessage(ErrorsEnum.ISCREATE_ERROR);
         }
         projectInfoMapper.addProjectAndUserRelation(projectInfoov);
@@ -62,14 +65,16 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
 
     @Override
     @Transactional
-    public void joinProject(ProjectInfoOV projectInfov) throws BusinessException {
-        CustomAssert.isNotNull(projectInfov,ErrorsEnum.OBJECT_NULL);
+    public void joinProject(ProjectInfoOV projectInfov) throws BusinessException
+    {
+        CustomAssert.isNotNull(projectInfov, ErrorsEnum.OBJECT_NULL);
 
         String userAccount = projectInfov.getUserAccount();
         Integer projectId = projectInfov.getId();
 
-        ProUserRel proUserRel = projectInfoMapper.queryRelation(projectId,userAccount);
-        if(proUserRel!=null){
+        ProUserRel proUserRel = projectInfoMapper.queryRelation(projectId, userAccount);
+        if (proUserRel != null)
+        {
             BusinessException.throwMessage(ErrorsEnum.RELATION_DUPLICATE);
         }
 
@@ -77,9 +82,10 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     @Override
-    public List<ProjectInfo> queryProjectsByUserAccount(String userAccount) throws BusinessException {
+    public List<ProjectInfo> queryProjectsByUserAccount(String userAccount) throws BusinessException
+    {
 
-        CustomAssert.isNotEmpty(userAccount,ErrorsEnum.ACCOUNT_NULL);
+        CustomAssert.isNotEmpty(userAccount, ErrorsEnum.ACCOUNT_NULL);
 
         List<ProjectInfo> projectInfos = projectInfoMapper.queryProjectsByUserAccount(userAccount);
 
@@ -88,8 +94,9 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
     }
 
     @Override
-    public List<ProjectInfo> queryProjectsUserAdd(String userAccount) throws BusinessException {
-        CustomAssert.isNotEmpty(userAccount,ErrorsEnum.ACCOUNT_NULL);
+    public List<ProjectInfo> queryProjectsUserAdd(String userAccount) throws BusinessException
+    {
+        CustomAssert.isNotEmpty(userAccount, ErrorsEnum.ACCOUNT_NULL);
         List<ProjectInfo> projectInfos = projectInfoMapper.queryProjectsUserAdd(userAccount);
         return projectInfos;
 
@@ -97,23 +104,26 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
 
     @Override
     @Transactional
-    public void makeProjectHavePerson(ProjectInfo projectInfo) throws BusinessException{
+    public void makeProjectHavePerson(ProjectInfo projectInfo) throws BusinessException
+    {
 
-        CustomAssert.isNotNull(projectInfo,ErrorsEnum.OBJECT_NULL);
-        CustomAssert.notEmpty(projectInfo.getUserInfoList(),ErrorsEnum.USERLIST_NULL);
+        CustomAssert.isNotNull(projectInfo, ErrorsEnum.OBJECT_NULL);
+        CustomAssert.notEmpty(projectInfo.getUserInfoList(), ErrorsEnum.USERLIST_NULL);
         projectInfoMapper.makeProjectAndUserRelation(projectInfo);
 
     }
 
     @Override
-    public List<String> queryUserByProjectName(String projectName) throws BusinessException{
-        CustomAssert.isNotEmpty(projectName,ErrorsEnum.PROJECTNAME_NULL);
+    public List<String> queryUserByProjectName(String projectName) throws BusinessException
+    {
+        CustomAssert.isNotEmpty(projectName, ErrorsEnum.PROJECTNAME_NULL);
         ProjectInfo projectInfo = projectInfoMapper.queryUsersByProjectName(projectName);
-        List<UserInfo> userInfoList =  projectInfo.getUserInfoList();
+        List<UserInfo> userInfoList = projectInfo.getUserInfoList();
 
         List<String> userNames = new ArrayList<>();
 
-        for(UserInfo userInfo:userInfoList){
+        for (UserInfo userInfo : userInfoList)
+        {
             userNames.add(userInfo.getUserName());
         }
 
@@ -127,15 +137,25 @@ public class ProjectInfoServiceImpl implements ProjectInfoService{
         return projectInfoMapper.queryPublicProject(projectName, createUser);
     }
 
+
     /*
-    * 对于增删改类操作，需要进行事务管理
-    * */
+     * 对于增删改类操作，需要进行事务管理
+     * */
     @Override
     @Transactional
-    public void deleteProject(Integer projectid) throws BusinessException {
-        CustomAssert.isNotNull(projectid,ErrorsEnum.PARAM_NULL);
+    public void deleteProject(Integer projectid) throws BusinessException
+    {
+        CustomAssert.isNotNull(projectid, ErrorsEnum.PARAM_NULL);
         projectInfoMapper.deleteProject(projectid);
         projectInfoMapper.deleteRelationProAndUser(projectid);
+    }
+
+    @Override
+    public String queryUserAccountByProjectId(Integer projectId) throws BusinessException {
+
+        CustomAssert.isNotNull(projectId, ErrorsEnum.PARAM_NULL);
+        String userAccount = projectInfoMapper.queryUserAccountByProjectId(projectId);
+        return userAccount;
     }
 
 }

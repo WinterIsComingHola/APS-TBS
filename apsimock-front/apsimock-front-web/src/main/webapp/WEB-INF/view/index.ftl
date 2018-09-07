@@ -34,18 +34,18 @@
             <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
 
                 <li class="layui-nav-item" lay-unselect>
-                    <a lay-href="index.html" layadmin-event="message" lay-text="必看前情">
+                    <a id="notice" layadmin-event="message" data-type="openNotice" lay-text="必看前情">
                         <i class="layui-icon layui-icon-notice"></i>
-
-                        <span class="layui-badge-dot"></span>
+                        <#--<span class="layui-badge-dot"></span>-->
                     </a>
                 </li>
+
                 <li class="layui-nav-item" lay-unselect>
                     <a href="javascript:;">
                         <cite>${userAccount}</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a lay-href="set/user/info.html">基本资料</a></dd>
+                        <dd><a lay-href="${miscDomain}/aps/user/userinfo?userAccount=${userAccount}">基本资料</a></dd>
                         <dd><a lay-href="${miscDomain}/aps/user/pagereset?userAccount=${userAccount}">修改密码</a></dd>
                         <hr>
                         <dd><a href="${miscDomain}/aps/user/logout">退出</a></dd>
@@ -101,7 +101,7 @@
                             <dd>
                                 <a href="javascript:;">我的设置</a>
                                 <dl class="layui-nav-child">
-                                    <dd><a lay-href="set/user/info.html">基本资料</a></dd>
+                                    <dd><a lay-href="${miscDomain}/aps/user/userinfo?userAccount=${userAccount}">基本资料</a></dd>
                                     <dd><a lay-href="${miscDomain}/aps/user/pagereset?userAccount=${userAccount}">修改密码</a></dd>
                                 </dl>
                             </dd>
@@ -143,6 +143,11 @@
 
         <!-- 辅助元素，一般用于移动设备下遮罩 -->
         <div class="layadmin-body-shade" layadmin-event="shade"></div>
+
+        <!-- 展示通知信息的弹层 -->
+        <div hidden id="noticeresult">
+            <table class="layui-hide" id="notice-result-table" lay-filter="notice-result-event"></table>
+        </div>
     </div>
 </div>
 
@@ -152,7 +157,91 @@
         base: '${miscDomain}/statics/layuiadmin/' //静态资源所在路径
     }).extend({
         index: 'lib/index' //主入口模块
-    }).use('index');
+    }).use(['index','element', 'layer','jquery','table','laypage'],function () {
+        var $ = layui.jquery,
+                table = layui.table
+                ,laypage = layui.laypage
+                ,layer = layui.layer
+                ,element = layui.element;
+        var websocket = new WebSocket("${wsDomain}/aps/push?usersessionid=${userAccount}");
+
+        //连接成功建立的回调方法
+        websocket.onopen = function () {
+            console.log("WebSocket连接成功");
+        };
+
+        //接收到消息的回调方法
+        websocket.onmessage = function (event) {
+
+            console.log(event.data);
+
+            //新增红点
+            if($("#notice > span").length==0){
+                var hotHtml = "<span class='layui-badge-dot'></span>"
+                var renderObj = $(hotHtml);
+                $("#notice").append(renderObj);
+                element.init();
+
+            }
+
+            layer.msg(event.data);
+
+        };
+
+        //连接关闭的回调方法
+        websocket.onclose = function () {
+            console.log("WebSocket连接关闭");
+        };
+
+        var active = {
+            openNotice:function () {
+                layer.open(
+                        {
+                            type:1
+                            ,skin:"'layui-layer-molv'"
+                            ,area : ['1135px', '550px']
+                            ,title:["我的通知",'font-size:16px;margin-top: 5px']
+                            ,content: $("#noticeresult")
+                            ,btnAlign: 'c'
+                            ,success:function (childobj,index) {
+                                table.render({
+                                    elem: '#notice-result-table'
+                                    , url: '${mainDomain}aps/notice/querynotice.action'
+                                    , method: 'post'
+                                    , where: {userAccount:"${userAccount}"}
+                                    ,even: true
+                                    ,type:'date'
+                                    , cols: [[
+                                        {field: 'zizeng', title: '序号', type: 'numbers', align: 'center'}
+                                        , {field: 'info', title: '通知内容', align: 'center'}
+                                        , {field: 'time', title: '通知时间', align: 'center'}
+                                    ]]
+                                    , page: true
+                                });
+                            }
+                        }
+                );
+            }
+        };
+
+
+        //执行通知图标的点击事件
+        $('#notice').on('click',function(){
+
+            //获取查询按钮元素中的data-type属性的值
+            var type = $(this).data('type');
+            //执行弹层
+            active[type]?active[type].call(this):'';
+
+            //执行弹层后，需要去掉小红点，删除
+            if($("#notice > span").length>0){
+                $("#notice > span").remove();
+            }
+
+            return false;
+        });
+
+    });
 </script>
 </body>
 </html>

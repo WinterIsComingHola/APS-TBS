@@ -5,9 +5,9 @@ import com.roli.apsimock.model.ApsSoaParam;
 import com.roli.apsimock.model.project.ProjectInfo;
 import com.roli.apsimock.model.project.ProjectInfoOOV;
 import com.roli.apsimock.model.project.ProjectInfoOV;
-import com.roli.apsimock.model.user.UserInfo;
+import com.roli.apsimock.model.user.NoticeRecord;
+import com.roli.apsimock.services.notify.ProjectNotification;
 import com.roli.apsimock.services.user.ProjectInfoService;
-import com.roli.common.exception.BaseRunTimeException;
 import com.roli.common.exception.BusinessException;
 import com.roli.common.model.enums.ErrorsEnum;
 import com.roli.common.utils.json.JacksonUtils;
@@ -39,6 +39,8 @@ public class ProjectInfoController {
 
     @Resource
     ProjectInfoService projectInfoService;
+    @Resource
+    ProjectNotification projectNotification;
 
 
     /**
@@ -350,6 +352,118 @@ public class ProjectInfoController {
                 resultSoaRest.setMessage("success");
             }catch (BusinessException e){
                 logger.error("/aps/rest/project/deleteProject 业务处理异常",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+
+    @RequestMapping(value = "/aps/rest/project/queryuseraccountbyprojectid",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest queryUserAccountByProjectid(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+
+            try{
+                Integer projectId = Integer.parseInt(apsSoaParam.getBusinessParam());
+
+                String userAccount = projectInfoService.queryUserAccountByProjectId(projectId);
+
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.addAttribute("userAccount",userAccount);
+            }catch (BusinessException e){
+                logger.error("/aps/rest/project/queryuseraccountbyprojectid 业务处理异常",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+
+    @RequestMapping(value = "/aps/rest/project/addnotify",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest addProjectNotify(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+
+            try{
+
+                Map<String,Object> notifyMap = (Map<String,Object>)JacksonUtils.str2map(apsSoaParam.getBusinessParam());
+                List<String> userAccountList = (List<String>)notifyMap.get("ownUsers");
+                String notifyContent = (String)notifyMap.get("message");
+
+                projectNotification.addProjectNtify(userAccountList,notifyContent);
+
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.setMessage("新增通知入库成功");
+            }catch (BusinessException e){
+                logger.error("/aps/rest/project/addnotify 业务处理异常",e);
+                resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
+                resultSoaRest.setSuccess(false);
+                resultSoaRest.setMessage(e.getMessage());
+            }
+        }else{
+            resultSoaRest.setState(ErrorsEnum.PARAM_NULL.getErrorCode());
+            resultSoaRest.setSuccess(false);
+            resultSoaRest.setMessage(ErrorsEnum.PARAM_NULL.getMessage());
+        }
+        return resultSoaRest;
+    }
+
+
+    @RequestMapping(value = "/aps/rest/project/querynoticebyuser",method = RequestMethod.POST)
+    @ResponseBody
+    @SoaRestAuth(ApsSoaParam.class)
+    public ResultSoaRest queryNoticeByUserAccount(){
+        ResultSoaRest resultSoaRest = new ResultSoaRest();
+
+        ApsSoaParam apsSoaParam = ApsSoaParam.getInstance(ApsSoaParam.class);
+
+        if(apsSoaParam != null && StringUtils.isNoneBlank(apsSoaParam.getBusinessParam())){
+
+            try{
+                Map<String, String> mapParam = JacksonUtils.fromJson(apsSoaParam.getBusinessParam(), Map.class);
+
+                String userAccount = mapParam.get("userAccount");
+                int pageNum = Integer.parseInt(mapParam.get("pageNum"));
+                int pageSize = Integer.parseInt(mapParam.get("pageSize"));
+
+                PageHelper.startPage(pageNum,pageSize);
+
+                List<NoticeRecord> noticeRecords = projectNotification.queryNoticeRecordByUser(userAccount);
+
+                PageFenYeUtils<NoticeRecord> pageFenYeUtils = new PageFenYeUtils<>();
+                Datagrid datagrid = pageFenYeUtils.pageFenYeHandle(noticeRecords);
+
+                resultSoaRest.setState(ErrorsEnum.SUCCESS.getErrorCode());
+                resultSoaRest.setSuccess(true);
+                resultSoaRest.addAttribute("noticeRecords",datagrid.getList());
+                resultSoaRest.addAttribute("total",datagrid.getTotal());
+            }catch (BusinessException e){
+                logger.error("/aps/rest/project/querynoticebyuser 业务处理异常",e);
                 resultSoaRest.setState(Integer.parseInt(e.getErrCode()));
                 resultSoaRest.setSuccess(false);
                 resultSoaRest.setMessage(e.getMessage());
