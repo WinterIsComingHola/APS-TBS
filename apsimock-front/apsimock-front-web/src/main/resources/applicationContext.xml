@@ -49,6 +49,9 @@
 		</property>
 	</bean>
 
+	<!--MQ相关类的bean化-->
+	<import resource="classpath:spring/spring-mq.xml"/>
+
 	<!-- 事务配置 -->
 	<import resource="classpath:datasource/transaction.xml"/>
 
@@ -63,6 +66,9 @@
 	
 	<!-- 引入restful -->
 	<import resource="classpath:soa/spring/spring-soa-restful.xml" />
+
+	<!-- 引入ActiveMq -->
+	<import resource="classpath:soa/spring/spring-activemq.xml" />
 	
 	<!-- 线程池配置 -->
 	<import resource="classpath:spring/spring_thread.xml"/>
